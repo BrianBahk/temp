@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -9,16 +10,67 @@ import {
   LogOut,
   Calendar,
   XCircle,
+  ShoppingBag,
+  Package,
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+
+interface Order {
+  id: string;
+  orderNumber: string;
+  subtotal: number;
+  tax: number;
+  pointsUsed: number;
+  total: number;
+  status: string;
+  createdAt: string;
+  orderItems: Array<{
+    id: string;
+    quantity: number;
+    price: number;
+    publication: {
+      id: string;
+      title: string;
+      type: string;
+    };
+  }>;
+}
 
 const Account = () => {
   const { user, isAuthenticated, logout, cancelSubscription } = useAuth();
   const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      fetchOrders();
+    }
+  }, [isAuthenticated, user]);
+
+  const fetchOrders = async () => {
+    try {
+      setLoadingOrders(true);
+      // In a real app:
+      // const response = await fetch('/api/orders', {
+      //   headers: { 'x-user-id': user.id }
+      // });
+      // const data = await response.json();
+      // setOrders(data);
+      
+      // Simulated data for now
+      setOrders([]);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
 
   if (!isAuthenticated || !user) {
     return (
@@ -116,118 +168,206 @@ const Account = () => {
 
           {/* Main Content - Subscriptions */}
           <div className="lg:col-span-2">
-            <div className="bg-card rounded-xl border border-border p-6 mb-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-semibold text-lg">Active Subscriptions</h2>
-                <Link href="/catalog">
-                  <Button variant="outline" size="sm">
-                    Add New
-                  </Button>
-                </Link>
-              </div>
+            <Tabs defaultValue="subscriptions" className="w-full">
+              <TabsList className="mb-6">
+                <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+                <TabsTrigger value="orders">Purchase History</TabsTrigger>
+              </TabsList>
 
-              {activeSubscriptions.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground mb-4">
-                    You don't have any active subscriptions yet.
-                  </p>
-                  <Link href="/catalog">
-                    <Button>Browse Catalog</Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {activeSubscriptions.map((subscription) => (
-                    <div
-                      key={subscription.id}
-                      className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                          {subscription.type === "magazine" ? (
-                            <BookOpen className="w-5 h-5 text-primary" />
-                          ) : (
-                            <Newspaper className="w-5 h-5 text-primary" />
-                          )}
-                        </div>
-                        <div>
-                          <h4 className="font-medium">
-                            {subscription.publicationTitle}
-                          </h4>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Calendar className="w-3 h-3" />
-                            <span>
-                              Renews{" "}
-                              {new Date(
-                                subscription.endDate
-                              ).toLocaleDateString()}
-                            </span>
+              <TabsContent value="subscriptions">
+                <div className="bg-card rounded-xl border border-border p-6 mb-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="font-semibold text-lg">
+                      Active Subscriptions
+                    </h2>
+                    <Link href="/catalog">
+                      <Button variant="outline" size="sm">
+                        Add New
+                      </Button>
+                    </Link>
+                  </div>
+
+                  {activeSubscriptions.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground mb-4">
+                        You don't have any active subscriptions yet.
+                      </p>
+                      <Link href="/catalog">
+                        <Button>Browse Catalog</Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {activeSubscriptions.map((subscription) => (
+                        <div
+                          key={subscription.id}
+                          className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                              {subscription.type === "magazine" ? (
+                                <BookOpen className="w-5 h-5 text-primary" />
+                              ) : (
+                                <Newspaper className="w-5 h-5 text-primary" />
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="font-medium">
+                                {subscription.publicationTitle}
+                              </h4>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Calendar className="w-3 h-3" />
+                                <span>
+                                  Renews{" "}
+                                  {new Date(
+                                    subscription.endDate
+                                  ).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant="outline"
+                              className="bg-success/10 text-success border-success/20"
+                            >
+                              Active
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                handleCancelSubscription(
+                                  subscription.id,
+                                  subscription.publicationTitle
+                                )
+                              }
+                            >
+                              <XCircle className="w-4 h-4 text-muted-foreground" />
+                            </Button>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="outline"
-                          className="bg-success/10 text-success border-success/20"
-                        >
-                          Active
-                        </Badge>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            handleCancelSubscription(
-                              subscription.id,
-                              subscription.publicationTitle
-                            )
-                          }
-                        >
-                          <XCircle className="w-4 h-4 text-muted-foreground" />
-                        </Button>
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
-            </div>
 
-            {cancelledSubscriptions.length > 0 && (
-              <div className="bg-card rounded-xl border border-border p-6">
-                <h2 className="font-semibold text-lg mb-4">
-                  Cancelled Subscriptions
-                </h2>
-                <div className="space-y-4">
-                  {cancelledSubscriptions.map((subscription) => (
-                    <div
-                      key={subscription.id}
-                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg opacity-60"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                          {subscription.type === "magazine" ? (
-                            <BookOpen className="w-5 h-5 text-muted-foreground" />
-                          ) : (
-                            <Newspaper className="w-5 h-5 text-muted-foreground" />
-                          )}
+                {cancelledSubscriptions.length > 0 && (
+                  <div className="bg-card rounded-xl border border-border p-6">
+                    <h2 className="font-semibold text-lg mb-4">
+                      Cancelled Subscriptions
+                    </h2>
+                    <div className="space-y-4">
+                      {cancelledSubscriptions.map((subscription) => (
+                        <div
+                          key={subscription.id}
+                          className="flex items-center justify-between p-4 bg-muted/50 rounded-lg opacity-60"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                              {subscription.type === "magazine" ? (
+                                <BookOpen className="w-5 h-5 text-muted-foreground" />
+                              ) : (
+                                <Newspaper className="w-5 h-5 text-muted-foreground" />
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="font-medium">
+                                {subscription.publicationTitle}
+                              </h4>
+                              <p className="text-sm text-muted-foreground">
+                                Ended{" "}
+                                {new Date(
+                                  subscription.endDate
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge variant="secondary">Cancelled</Badge>
                         </div>
-                        <div>
-                          <h4 className="font-medium">
-                            {subscription.publicationTitle}
-                          </h4>
-                          <p className="text-sm text-muted-foreground">
-                            Ended{" "}
-                            {new Date(
-                              subscription.endDate
-                            ).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge variant="secondary">Cancelled</Badge>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="orders">
+                <div className="bg-card rounded-xl border border-border p-6">
+                  <div className="flex items-center gap-2 mb-6">
+                    <ShoppingBag className="w-5 h-5" />
+                    <h2 className="font-semibold text-lg">Purchase History</h2>
+                  </div>
+
+                  {loadingOrders ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                      <p className="mt-4 text-muted-foreground">
+                        Loading orders...
+                      </p>
+                    </div>
+                  ) : orders.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground mb-4">
+                        You haven't made any purchases yet.
+                      </p>
+                      <Link href="/catalog">
+                        <Button>Browse Catalog</Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {orders.map((order) => (
+                        <div
+                          key={order.id}
+                          className="border rounded-lg p-4 hover:bg-secondary/30 transition-colors"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h4 className="font-semibold text-sm">
+                                {order.orderNumber}
+                              </h4>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(order.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-bold">${order.total.toFixed(2)}</p>
+                              {order.pointsUsed > 0 && (
+                                <Badge variant="outline" className="text-xs mt-1">
+                                  {order.pointsUsed} pts used
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            {order.orderItems.map((item) => (
+                              <div
+                                key={item.id}
+                                className="flex justify-between items-center text-sm"
+                              >
+                                <div className="flex items-center gap-2">
+                                  {item.publication.type === "magazine" ? (
+                                    <BookOpen className="w-4 h-4 text-muted-foreground" />
+                                  ) : (
+                                    <Newspaper className="w-4 h-4 text-muted-foreground" />
+                                  )}
+                                  <span>{item.publication.title}</span>
+                                </div>
+                                <span className="text-muted-foreground">
+                                  ${item.price.toFixed(2)} × {item.quantity}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>

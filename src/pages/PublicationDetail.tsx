@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -10,21 +11,149 @@ import {
   Gift,
   Truck,
   Check,
+  MessageSquare,
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { publications } from "@/data/publications";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+
+interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  status: string;
+  createdAt: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
 
 const PublicationDetail = () => {
   const params = useParams();
   const id = params.id as string;
   const { addToCart, items } = useCart();
+  const { isAuthenticated, user } = useAuth();
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [hasPurchased, setHasPurchased] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
 
   const publication = publications.find((p) => p.id === id);
   const isInCart = items.some((item) => item.publication.id === id);
+
+  useEffect(() => {
+    if (publication) {
+      fetchReviews();
+      if (isAuthenticated && user) {
+        checkPurchaseStatus();
+      }
+    }
+  }, [publication, isAuthenticated, user]);
+
+  const fetchReviews = async () => {
+    try {
+      setLoadingReviews(true);
+      // In a real app:
+      // const response = await fetch(`/api/reviews?publicationId=${id}&status=approved`);
+      // const data = await response.json();
+      // setReviews(data);
+      
+      // Simulated data for now
+      setReviews([]);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
+
+  const checkPurchaseStatus = async () => {
+    try {
+      // In a real app, check if user has purchased this publication
+      // const response = await fetch(`/api/orders`, {
+      //   headers: { 'x-user-id': user.id }
+      // });
+      // const orders = await response.json();
+      // const purchased = orders.some(order =>
+      //   order.orderItems.some(item => item.publicationId === id)
+      // );
+      // setHasPurchased(purchased);
+      
+      // Check if user already reviewed
+      // const reviewsResponse = await fetch(`/api/reviews?publicationId=${id}`);
+      // const allReviews = await reviewsResponse.json();
+      // const userReview = allReviews.find(r => r.userId === user.id);
+      // setHasReviewed(!!userReview);
+      
+      // Simulated for now
+      setHasPurchased(false);
+      setHasReviewed(false);
+    } catch (error) {
+      console.error("Error checking purchase status:", error);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!isAuthenticated || !user) {
+      toast.error("Please sign in to leave a review");
+      return;
+    }
+
+    if (!hasPurchased) {
+      toast.error("You can only review items you have purchased");
+      return;
+    }
+
+    if (rating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+
+    if (!comment.trim()) {
+      toast.error("Please write a comment");
+      return;
+    }
+
+    try {
+      setSubmittingReview(true);
+      // In a real app:
+      // await fetch('/api/reviews', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'x-user-id': user.id
+      //   },
+      //   body: JSON.stringify({
+      //     publicationId: id,
+      //     rating,
+      //     comment
+      //   })
+      // });
+      
+      toast.success("Review submitted! It will be visible after admin approval.");
+      setRating(0);
+      setComment("");
+      setHasReviewed(true);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      toast.error("Failed to submit review");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   if (!publication) {
     return (
@@ -189,6 +318,150 @@ const PublicationDetail = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-16">
+          <Separator className="mb-8" />
+          
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            <MessageSquare className="w-6 h-6" />
+            Customer Reviews
+          </h2>
+
+          {/* Write Review Form */}
+          {isAuthenticated ? (
+            hasPurchased && !hasReviewed ? (
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle>Write a Review</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {/* Star Rating */}
+                    <div>
+                      <Label>Rating</Label>
+                      <div className="flex gap-1 mt-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setRating(star)}
+                            className="focus:outline-none"
+                          >
+                            <Star
+                              className={`w-8 h-8 ${
+                                star <= rating
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Comment */}
+                    <div>
+                      <Label htmlFor="comment">Your Review</Label>
+                      <Textarea
+                        id="comment"
+                        placeholder="Share your thoughts about this publication..."
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        rows={4}
+                        className="mt-2"
+                      />
+                    </div>
+
+                    <Button
+                      onClick={handleSubmitReview}
+                      disabled={submittingReview || rating === 0 || !comment.trim()}
+                    >
+                      {submittingReview ? "Submitting..." : "Submit Review"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : hasReviewed ? (
+              <Card className="mb-8 bg-blue-50 border-blue-200">
+                <CardContent className="pt-6">
+                  <p className="text-sm text-blue-800">
+                    You have already submitted a review for this publication.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="mb-8 bg-amber-50 border-amber-200">
+                <CardContent className="pt-6">
+                  <p className="text-sm text-amber-800">
+                    Purchase this publication to leave a review.
+                  </p>
+                </CardContent>
+              </Card>
+            )
+          ) : (
+            <Card className="mb-8">
+              <CardContent className="pt-6 text-center">
+                <p className="text-muted-foreground mb-4">
+                  Sign in to leave a review
+                </p>
+                <Link href="/login">
+                  <Button variant="outline">Sign In</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Reviews List */}
+          {loadingReviews ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-muted-foreground">Loading reviews...</p>
+            </div>
+          ) : reviews.length === 0 ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-lg font-semibold mb-2">No reviews yet</p>
+                <p className="text-muted-foreground">
+                  Be the first to review this publication!
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {reviews.map((review) => (
+                <Card key={review.id}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <p className="font-semibold">{review.user.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="flex gap-0.5">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < review.rating
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(review.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm">{review.comment}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </Layout>

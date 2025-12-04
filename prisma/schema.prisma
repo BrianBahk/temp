@@ -15,12 +15,15 @@ model User {
   email         String         @unique
   name          String
   password      String
+  role          String         @default("user") // 'user' or 'admin'
   points        Int            @default(0)
+  pointsEarned  Int            @default(0)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   subscriptions Subscription[]
   reviews       Review[]
   cartItems     CartItem[]
+  orders        Order[]
 }
 
 model Publication {
@@ -41,6 +44,7 @@ model Publication {
   subscriptions Subscription[]
   reviews       Review[]
   cartItems     CartItem[]
+  orderItems    OrderItem[]
 }
 
 model Subscription {
@@ -83,3 +87,28 @@ model CartItem {
   @@unique([userId, publicationId])
 }
 
+model Order {
+  id            String        @id @default(uuid())
+  orderNumber   String        @unique
+  userId        String
+  subtotal      Float
+  tax           Float         @default(0)
+  pointsUsed    Int           @default(0)
+  total         Float
+  status        String        @default("completed") // 'pending', 'completed', 'cancelled'
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems    OrderItem[]
+}
+
+model OrderItem {
+  id            String      @id @default(uuid())
+  orderId       String
+  publicationId String
+  quantity      Int
+  price         Float
+  createdAt     DateTime    @default(now())
+  order         Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+}

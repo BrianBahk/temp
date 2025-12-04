@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
@@ -133,10 +134,81 @@ const publications = [
     reviewCount: 876,
     featured: false,
   },
+  {
+    id: '11',
+    title: 'Los Angeles Times',
+    type: 'newspaper',
+    description: 'A daily newspaper which has been published in Los Angeles, California, since 1881.',
+    price: 14.99,
+    image: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=400&h=500&fit=crop',
+    city: 'Los Angeles',
+    category: 'News & Politics',
+    rating: 4.4,
+    reviewCount: 1234,
+    featured: false,
+  },
+  {
+    id: '12',
+    title: 'The Boston Globe',
+    type: 'newspaper',
+    description: 'An American daily newspaper founded and based in Boston, Massachusetts.',
+    price: 13.99,
+    image: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&h=500&fit=crop',
+    city: 'Boston',
+    category: 'News & Politics',
+    rating: 4.5,
+    reviewCount: 987,
+    featured: false,
+  },
+  {
+    id: '13',
+    title: 'San Francisco Chronicle',
+    type: 'newspaper',
+    description: 'A newspaper serving primarily the San Francisco Bay Area of the U.S. state of California.',
+    price: 15.99,
+    image: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=400&h=500&fit=crop',
+    city: 'San Francisco',
+    category: 'News & Politics',
+    rating: 4.2,
+    reviewCount: 654,
+    featured: false,
+  },
 ];
 
 async function main() {
   console.log('Start seeding...');
+  
+  // Create admin user
+  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@readsphere.com' },
+    update: {},
+    create: {
+      email: 'admin@readsphere.com',
+      name: 'Admin User',
+      password: hashedPassword,
+      role: 'admin',
+      points: 0,
+      pointsEarned: 0,
+    },
+  });
+  console.log(`Created admin user: ${admin.email}`);
+  
+  // Create test regular user
+  const testUserPassword = await bcrypt.hash('test123', 10);
+  const testUser = await prisma.user.upsert({
+    where: { email: 'test@example.com' },
+    update: {},
+    create: {
+      email: 'test@example.com',
+      name: 'Test User',
+      password: testUserPassword,
+      role: 'user',
+      points: 100,
+      pointsEarned: 100,
+    },
+  });
+  console.log(`Created test user: ${testUser.email}`);
   
   for (const pub of publications) {
     const publication = await prisma.publication.upsert({

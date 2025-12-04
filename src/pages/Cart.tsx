@@ -1,22 +1,50 @@
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { Trash2, ShoppingBag, ArrowRight, Gift } from 'lucide-react';
+import { Trash2, ShoppingBag, ArrowRight, Gift, Coins } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 const Cart = () => {
   const { items, removeFromCart, clearCart, subtotal, tax, total, pointsEarned } = useCart();
-  const { isAuthenticated, addPoints, addSubscription } = useAuth();
+  const { isAuthenticated, user, addPoints, addSubscription } = useAuth();
+  const [pointsToUse, setPointsToUse] = useState(0);
+
+  const availablePoints = user?.points || 0;
+  const maxPointsUsable = Math.min(availablePoints, Math.floor(total));
+  const finalTotal = Math.max(0, total - pointsToUse);
 
   const handleCheckout = () => {
     if (!isAuthenticated) {
       toast.error('Please sign in to complete your purchase');
       return;
     }
+
+    if (pointsToUse > availablePoints) {
+      toast.error('Insufficient points');
+      return;
+    }
+
+    if (pointsToUse > total) {
+      toast.error('Points cannot exceed order total');
+      return;
+    }
+
+    // In a real app, this would call the /api/orders endpoint
+    // const response = await fetch('/api/orders', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'x-user-id': user.id
+    //   },
+    //   body: JSON.stringify({ pointsToUse })
+    // });
 
     // Mock checkout process
     items.forEach((item) => {
@@ -33,9 +61,29 @@ const Cart = () => {
       addSubscription(subscription);
     });
 
-    addPoints(pointsEarned);
+    const pointsGained = Math.floor(finalTotal);
+    addPoints(pointsGained - pointsToUse);
     clearCart();
-    toast.success(`Order placed! You earned ${pointsEarned} points!`);
+    
+    let message = `Order placed!`;
+    if (pointsToUse > 0) {
+      message += ` ${pointsToUse} points redeemed.`;
+    }
+    if (pointsGained > 0) {
+      message += ` You earned ${pointsGained} points!`;
+    }
+    toast.success(message);
+  };
+
+  const handleApplyPoints = (value: string) => {
+    const points = parseInt(value) || 0;
+    if (points > maxPointsUsable) {
+      setPointsToUse(maxPointsUsable);
+    } else if (points < 0) {
+      setPointsToUse(0);
+    } else {
+      setPointsToUse(points);
+    }
   };
 
   if (items.length === 0) {
@@ -145,24 +193,72 @@ const Cart = () => {
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tax</span>
+                  <span className="text-muted-foreground">
+                    Tax (8.25% on magazines)
+                  </span>
                   <span>${tax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
                   <span className="text-success">Free</span>
                 </div>
+                {pointsToUse > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Points Redeemed</span>
+                    <span>-${pointsToUse.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-semibold text-base pt-3 border-t border-border">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>${finalTotal.toFixed(2)}</span>
                 </div>
               </div>
+
+              {isAuthenticated && availablePoints > 0 && (
+                <div className="mb-6 p-4 bg-secondary/30 rounded-lg border border-border">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Coins className="w-4 h-4 text-yellow-600" />
+                      <span className="text-sm font-medium">
+                        Available Points: {availablePoints}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="points" className="text-xs">
+                      Use Points (1 point = $1)
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="points"
+                        type="number"
+                        min="0"
+                        max={maxPointsUsable}
+                        value={pointsToUse}
+                        onChange={(e) => handleApplyPoints(e.target.value)}
+                        placeholder="0"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPointsToUse(maxPointsUsable)}
+                        disabled={maxPointsUsable === 0}
+                      >
+                        Max
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Max: {maxPointsUsable} points
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-reward/10 rounded-lg p-4 mb-6">
                 <div className="flex items-center gap-2 text-reward">
                   <Gift className="w-4 h-4" />
                   <span className="text-sm font-medium">
-                    You'll earn {pointsEarned} points
+                    You'll earn {Math.floor(finalTotal)} points from this purchase
                   </span>
                 </div>
               </div>

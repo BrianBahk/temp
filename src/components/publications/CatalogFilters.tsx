@@ -13,6 +13,9 @@ interface CatalogFiltersProps {
   onTypeChange: (type: PublicationType | 'all') => void;
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
+  selectedCity: string;
+  onCityChange: (city: string) => void;
+  cities: string[];
 }
 
 export function CatalogFilters({
@@ -22,6 +25,9 @@ export function CatalogFilters({
   onTypeChange,
   selectedCategory,
   onCategoryChange,
+  selectedCity,
+  onCityChange,
+  cities,
 }: CatalogFiltersProps) {
   return (
     <div className="space-y-6">
@@ -70,6 +76,32 @@ export function CatalogFilters({
           ))}
         </div>
       </div>
+
+      {/* City Filter - Only show for newspapers */}
+      {selectedType === 'newspaper' && cities.length > 0 && (
+        <div>
+          <h4 className="text-sm font-medium mb-3">City</h4>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={selectedCity === 'All' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onCityChange('All')}
+            >
+              All Cities
+            </Button>
+            {cities.map((city) => (
+              <Button
+                key={city}
+                variant={selectedCity === city ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => onCityChange(city)}
+              >
+                {city}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

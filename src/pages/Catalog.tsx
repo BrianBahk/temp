@@ -17,6 +17,18 @@ const Catalog = () => {
     initialType || "all"
   );
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCity, setSelectedCity] = useState("All");
+
+  // Get unique cities from newspapers
+  const cities = useMemo(() => {
+    const citySet = new Set<string>();
+    publications
+      .filter((pub) => pub.type === "newspaper" && pub.city)
+      .forEach((pub) => {
+        if (pub.city) citySet.add(pub.city);
+      });
+    return Array.from(citySet).sort();
+  }, []);
 
   const filteredPublications = useMemo(() => {
     return publications.filter((pub) => {
@@ -26,9 +38,13 @@ const Catalog = () => {
       const matchesType = selectedType === "all" || pub.type === selectedType;
       const matchesCategory =
         selectedCategory === "All" || pub.category === selectedCategory;
-      return matchesSearch && matchesType && matchesCategory;
+      const matchesCity =
+        selectedCity === "All" ||
+        pub.type !== "newspaper" ||
+        pub.city === selectedCity;
+      return matchesSearch && matchesType && matchesCategory && matchesCity;
     });
-  }, [searchQuery, selectedType, selectedCategory]);
+  }, [searchQuery, selectedType, selectedCategory, selectedCity]);
 
   return (
     <Layout>
@@ -56,6 +72,9 @@ const Catalog = () => {
                 onTypeChange={setSelectedType}
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
+                selectedCity={selectedCity}
+                onCityChange={setSelectedCity}
+                cities={cities}
               />
             </div>
           </aside>
