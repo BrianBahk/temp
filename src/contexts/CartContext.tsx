@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Publication, CartItem } from '@/types';
+"use client";
+
+import React, { createContext, useContext, useState, useCallback } from "react";
+import { Publication, CartItem } from "@/types";
 
 interface CartContextType {
   items: CartItem[];
@@ -20,7 +22,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = useCallback((publication: Publication) => {
     setItems((prev) => {
-      const existing = prev.find((item) => item.publication.id === publication.id);
+      const existing = prev.find(
+        (item) => item.publication.id === publication.id
+      );
       if (existing) {
         return prev;
       }
@@ -29,7 +33,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const removeFromCart = useCallback((publicationId: string) => {
-    setItems((prev) => prev.filter((item) => item.publication.id !== publicationId));
+    setItems((prev) =>
+      prev.filter((item) => item.publication.id !== publicationId)
+    );
   }, []);
 
   const clearCart = useCallback(() => {
@@ -42,7 +48,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Magazines have 8.25% tax, newspapers have no tax
   const tax = items.reduce((acc, item) => {
-    if (item.publication.type === 'magazine') {
+    if (item.publication.type === "magazine") {
       return acc + item.publication.price * 0.0825;
     }
     return acc;
@@ -52,7 +58,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Magazines give 10% points, newspapers give 20% points
   const pointsEarned = items.reduce((acc, item) => {
-    const rate = item.publication.type === 'magazine' ? 0.1 : 0.2;
+    const rate = item.publication.type === "magazine" ? 0.1 : 0.2;
     return acc + Math.floor(item.publication.price * rate * 100);
   }, 0);
 
@@ -78,7 +84,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 export function useCart() {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error('useCart must be used within a CartProvider');
+    throw new Error("useCart must be used within a CartProvider");
   }
   return context;
 }

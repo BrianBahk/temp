@@ -1,16 +1,28 @@
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Star, BookOpen, Newspaper, Gift, Truck, Check } from 'lucide-react';
-import { Layout } from '@/components/layout/Layout';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { publications } from '@/data/publications';
-import { useCart } from '@/contexts/CartContext';
-import { toast } from 'sonner';
+"use client";
+
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import {
+  ArrowLeft,
+  Star,
+  BookOpen,
+  Newspaper,
+  Gift,
+  Truck,
+  Check,
+} from "lucide-react";
+import { Layout } from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { publications } from "@/data/publications";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 
 const PublicationDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams();
+  const id = params.id as string;
   const { addToCart, items } = useCart();
-  
+
   const publication = publications.find((p) => p.id === id);
   const isInCart = items.some((item) => item.publication.id === id);
 
@@ -18,8 +30,10 @@ const PublicationDetail = () => {
     return (
       <Layout>
         <div className="container-narrow py-16 text-center">
-          <h1 className="font-display text-2xl font-bold mb-4">Publication not found</h1>
-          <Link to="/catalog">
+          <h1 className="font-display text-2xl font-bold mb-4">
+            Publication not found
+          </h1>
+          <Link href="/catalog">
             <Button variant="outline">Back to Catalog</Button>
           </Link>
         </div>
@@ -34,15 +48,18 @@ const PublicationDetail = () => {
     }
   };
 
-  const pointsRate = publication.type === 'magazine' ? 10 : 20;
+  const pointsRate = publication.type === "magazine" ? 10 : 20;
   const pointsEarned = Math.floor(publication.price * (pointsRate / 100) * 100);
-  const tax = publication.type === 'magazine' ? publication.price * 0.0825 : 0;
+  const tax = publication.type === "magazine" ? publication.price * 0.0825 : 0;
   const total = publication.price + tax;
 
   return (
     <Layout>
       <div className="container-narrow py-8">
-        <Link to="/catalog" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors">
+        <Link
+          href="/catalog"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
+        >
           <ArrowLeft className="w-4 h-4" />
           Back to Catalog
         </Link>
@@ -68,7 +85,7 @@ const PublicationDetail = () => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Badge variant="secondary" className="gap-1">
-                {publication.type === 'magazine' ? (
+                {publication.type === "magazine" ? (
                   <BookOpen className="w-3 h-3" />
                 ) : (
                   <Newspaper className="w-3 h-3" />
@@ -90,13 +107,15 @@ const PublicationDetail = () => {
                   ({publication.reviewCount.toLocaleString()} reviews)
                 </span>
               </div>
-              {publication.type === 'magazine' && (
+              {publication.type === "magazine" && (
                 <span className="text-muted-foreground">
                   {publication.issuesPerYear} issues/year
                 </span>
               )}
-              {publication.type === 'newspaper' && (
-                <span className="text-muted-foreground">{publication.city}</span>
+              {publication.type === "newspaper" && (
+                <span className="text-muted-foreground">
+                  {publication.city}
+                </span>
               )}
             </div>
 
@@ -120,7 +139,7 @@ const PublicationDetail = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
-                    Tax {publication.type === 'magazine' ? '(8.25%)' : '(None)'}
+                    Tax {publication.type === "magazine" ? "(8.25%)" : "(None)"}
                   </span>
                   <span>${tax.toFixed(2)}</span>
                 </div>
@@ -141,7 +160,7 @@ const PublicationDetail = () => {
                 onClick={handleAddToCart}
                 disabled={isInCart}
               >
-                {isInCart ? 'Added to Cart' : 'Add to Cart'}
+                {isInCart ? "Added to Cart" : "Add to Cart"}
               </Button>
             </div>
 
@@ -164,8 +183,8 @@ const PublicationDetail = () => {
                   <Gift className="w-4 h-4 text-success" />
                 </div>
                 <span>
-                  {pointsRate}% rewards on{' '}
-                  {publication.type === 'magazine' ? 'magazines' : 'newspapers'}
+                  {pointsRate}% rewards on{" "}
+                  {publication.type === "magazine" ? "magazines" : "newspapers"}
                 </span>
               </div>
             </div>

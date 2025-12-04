@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+"use client";
+
+import Link from 'next/link';
 import { Trash2, ShoppingBag, ArrowRight, Gift } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -50,7 +52,7 @@ const Cart = () => {
             <p className="text-muted-foreground mb-6">
               Start browsing our catalog to find your next great read.
             </p>
-            <Link to="/catalog">
+            <Link href="/catalog">
               <Button>
                 Browse Catalog
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -171,14 +173,14 @@ const Cart = () => {
                 </Button>
               ) : (
                 <div className="space-y-3">
-                  <Link to="/login">
+                  <Link href="/login">
                     <Button className="w-full" size="lg">
                       Sign In to Checkout
                     </Button>
                   </Link>
                   <p className="text-xs text-center text-muted-foreground">
                     Don't have an account?{' '}
-                    <Link to="/signup" className="text-primary hover:underline">
+                    <Link href="/signup" className="text-primary hover:underline">
                       Sign up
                     </Link>
                   </p>

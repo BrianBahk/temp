@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+"use client";
+
+import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { publications } from '@/data/publications';
 import { PublicationCard } from '@/components/publications/PublicationCard';
@@ -19,7 +21,7 @@ export function FeaturedSection() {
               Handpicked selections from our editors
             </p>
           </div>
-          <Link to="/catalog" className="hidden sm:block">
+          <Link href="/catalog" className="hidden sm:block">
             <Button variant="ghost" className="group">
               View All
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
@@ -40,7 +42,7 @@ export function FeaturedSection() {
         </div>
 
         <div className="mt-8 text-center sm:hidden">
-          <Link to="/catalog">
+          <Link href="/catalog">
             <Button variant="outline" className="group">
               View All Publications
               <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />

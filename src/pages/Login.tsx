@@ -1,32 +1,35 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Newspaper } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Newspaper } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     const success = await login(email, password);
-    
+
     if (success) {
-      toast.success('Welcome back!');
-      navigate('/account');
+      toast.success("Welcome back!");
+      router.push("/account");
     } else {
-      toast.error('Invalid credentials');
+      toast.error("Invalid credentials");
     }
-    
+
     setIsLoading(false);
   };
 
@@ -42,7 +45,8 @@ const Login = () => {
             Welcome Back to ReadSphere
           </h1>
           <p className="text-primary-foreground/70">
-            Sign in to manage your subscriptions, track your rewards, and discover new publications.
+            Sign in to manage your subscriptions, track your rewards, and
+            discover new publications.
           </p>
         </div>
       </div>
@@ -50,11 +54,13 @@ const Login = () => {
       {/* Right Panel - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          <Link to="/" className="flex items-center gap-2 mb-8 lg:hidden">
+          <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
               <Newspaper className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-xl font-semibold">ReadSphere</span>
+            <span className="font-display text-xl font-semibold">
+              ReadSphere
+            </span>
           </Link>
 
           <h2 className="font-display text-2xl font-bold text-foreground mb-2">
@@ -89,14 +95,22 @@ const Login = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-primary font-medium hover:underline">
+            Don't have an account?{" "}
+            <Link
+              href="/signup"
+              className="text-primary font-medium hover:underline"
+            >
               Sign up
             </Link>
           </p>

@@ -1,3 +1,5 @@
+"use client";
+
 import { Publication } from '@/types';
 import { PublicationCard } from './PublicationCard';
 

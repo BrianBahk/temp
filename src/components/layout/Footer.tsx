@@ -1,5 +1,7 @@
-import { Link } from 'react-router-dom';
-import { Newspaper, Mail, Phone } from 'lucide-react';
+"use client";
+
+import Link from "next/link";
+import { Newspaper, Mail, Phone } from "lucide-react";
 
 export function Footer() {
   return (
@@ -8,14 +10,17 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
+            <Link href="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-lg bg-primary-foreground/10 flex items-center justify-center">
                 <Newspaper className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-display text-xl font-semibold">ReadSphere</span>
+              <span className="font-display text-xl font-semibold">
+                ReadSphere
+              </span>
             </Link>
             <p className="text-sm text-primary-foreground/70 leading-relaxed">
-              Your gateway to the world's best magazines and newspapers. Subscribe, read, earn rewards.
+              Your gateway to the world's best magazines and newspapers.
+              Subscribe, read, earn rewards.
             </p>
           </div>
 
@@ -24,17 +29,26 @@ export function Footer() {
             <h4 className="font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/catalog" className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                <Link
+                  href="/catalog"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
                   Browse Catalog
                 </Link>
               </li>
               <li>
-                <Link to="/catalog?type=magazine" className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                <Link
+                  href="/catalog?type=magazine"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
                   Magazines
                 </Link>
               </li>
               <li>
-                <Link to="/catalog?type=newspaper" className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                <Link
+                  href="/catalog?type=newspaper"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
                   Newspapers
                 </Link>
               </li>
@@ -46,17 +60,26 @@ export function Footer() {
             <h4 className="font-semibold mb-4">Account</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/login" className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                <Link
+                  href="/login"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
                   Sign In
                 </Link>
               </li>
               <li>
-                <Link to="/signup" className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                <Link
+                  href="/signup"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
                   Create Account
                 </Link>
               </li>
               <li>
-                <Link to="/account" className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors">
+                <Link
+                  href="/account"
+                  className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                >
                   My Subscriptions
                 </Link>
               </li>

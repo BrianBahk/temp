@@ -1,29 +1,31 @@
-import { useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Layout } from '@/components/layout/Layout';
-import { PublicationGrid } from '@/components/publications/PublicationGrid';
-import { CatalogFilters } from '@/components/publications/CatalogFilters';
-import { publications } from '@/data/publications';
-import { PublicationType } from '@/types';
+"use client";
+
+import { useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { Layout } from "@/components/layout/Layout";
+import { PublicationGrid } from "@/components/publications/PublicationGrid";
+import { CatalogFilters } from "@/components/publications/CatalogFilters";
+import { publications } from "@/data/publications";
+import { PublicationType } from "@/types";
 
 const Catalog = () => {
-  const [searchParams] = useSearchParams();
-  const initialType = searchParams.get('type') as PublicationType | null;
+  const searchParams = useSearchParams();
+  const initialType = searchParams.get("type") as PublicationType | null;
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState<PublicationType | 'all'>(
-    initialType || 'all'
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState<PublicationType | "all">(
+    initialType || "all"
   );
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const filteredPublications = useMemo(() => {
     return publications.filter((pub) => {
       const matchesSearch =
         pub.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         pub.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesType = selectedType === 'all' || pub.type === selectedType;
+      const matchesType = selectedType === "all" || pub.type === selectedType;
       const matchesCategory =
-        selectedCategory === 'All' || pub.category === selectedCategory;
+        selectedCategory === "All" || pub.category === selectedCategory;
       return matchesSearch && matchesType && matchesCategory;
     });
   }, [searchQuery, selectedType, selectedCategory]);

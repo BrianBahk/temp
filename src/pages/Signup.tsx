@@ -1,33 +1,36 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Newspaper, Gift } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Newspaper, Gift } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Signup = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { signup } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     const success = await signup(name, email, password);
-    
+
     if (success) {
-      toast.success('Account created! Welcome to ReadSphere!');
-      navigate('/account');
+      toast.success("Account created! Welcome to ReadSphere!");
+      router.push("/account");
     } else {
-      toast.error('Something went wrong');
+      toast.error("Something went wrong");
     }
-    
+
     setIsLoading(false);
   };
 
@@ -43,18 +46,22 @@ const Signup = () => {
             Join ReadSphere Today
           </h1>
           <p className="text-primary-foreground/70 mb-8">
-            Create an account to start subscribing to your favorite publications and earning rewards.
+            Create an account to start subscribing to your favorite publications
+            and earning rewards.
           </p>
-          
+
           <div className="bg-primary-foreground/10 rounded-xl p-6 text-left">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
                 <Gift className="w-5 h-5 text-accent" />
               </div>
-              <span className="font-semibold text-primary-foreground">Rewards Program</span>
+              <span className="font-semibold text-primary-foreground">
+                Rewards Program
+              </span>
             </div>
             <p className="text-sm text-primary-foreground/70">
-              Earn up to 20% back in points on every subscription. Redeem points for free subscriptions!
+              Earn up to 20% back in points on every subscription. Redeem points
+              for free subscriptions!
             </p>
           </div>
         </div>
@@ -63,11 +70,13 @@ const Signup = () => {
       {/* Right Panel - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
-          <Link to="/" className="flex items-center gap-2 mb-8 lg:hidden">
+          <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
               <Newspaper className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display text-xl font-semibold">ReadSphere</span>
+            <span className="font-display text-xl font-semibold">
+              ReadSphere
+            </span>
           </Link>
 
           <h2 className="font-display text-2xl font-bold text-foreground mb-2">
@@ -114,14 +123,22 @@ const Signup = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-              {isLoading ? 'Creating account...' : 'Create Account'}
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={isLoading}
+            >
+              {isLoading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
-            <Link to="/login" className="text-primary font-medium hover:underline">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="text-primary font-medium hover:underline"
+            >
               Sign in
             </Link>
           </p>

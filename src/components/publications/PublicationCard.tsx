@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+"use client";
+
+import Link from 'next/link';
 import { Star, Newspaper, BookOpen } from 'lucide-react';
 import { Publication } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -25,7 +27,7 @@ export function PublicationCard({ publication }: PublicationCardProps) {
   const pointsRate = publication.type === 'magazine' ? 10 : 20;
 
   return (
-    <Link to={`/publication/${publication.id}`} className="group">
+    <Link href={`/publication/${publication.id}`} className="group">
       <article className="bg-card rounded-xl border border-border overflow-hidden hover-lift">
         {/* Image */}
         <div className="relative aspect-[3/4] overflow-hidden bg-muted">

@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+"use client";
+
+import Link from 'next/link';
 import { ArrowRight, Gift, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -23,13 +25,13 @@ export function Hero() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12 animate-fade-in" style={{ animationDelay: '200ms' }}>
-            <Link to="/catalog">
+            <Link href="/catalog">
               <Button size="lg" variant="secondary" className="w-full sm:w-auto group">
                 Browse Catalog
                 <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Link to="/signup">
+            <Link href="/signup">
               <Button size="lg" className="w-full sm:w-auto bg-primary-foreground/10 border border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20">
                 Create Account
               </Button>
