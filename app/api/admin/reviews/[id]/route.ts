@@ -126,3 +126,81 @@ export const GET = requireAdmin(async (
     );
   }
 });
+
+/**
+ * DELETE /api/admin/reviews/[id]
+ * Delete a review (admin only)
+ */
+export const DELETE = requireAdmin(async (
+  request: NextRequest,
+  user,
+  { params }: { params: { id: string } }
+) => {
+  try {
+    const { id } = params;
+
+    // Get review details before deleting
+    const review = await prisma.review.findUnique({
+      where: { id },
+      select: {
+        publicationId: true,
+        status: true,
+      },
+    });
+
+    if (!review) {
+      return NextResponse.json(
+        { error: 'Review not found' },
+        { status: 404 }
+      );
+    }
+
+    // Delete the review
+    await prisma.review.delete({
+      where: { id },
+    });
+
+    // If the deleted review was approved, recalculate publication rating
+    if (review.status === 'approved') {
+      const approvedReviews = await prisma.review.findMany({
+        where: {
+          publicationId: review.publicationId,
+          status: 'approved',
+        },
+        select: {
+          rating: true,
+        },
+      });
+
+      if (approvedReviews.length > 0) {
+        const totalRating = approvedReviews.reduce((sum, r) => sum + r.rating, 0);
+        const avgRating = totalRating / approvedReviews.length;
+
+        await prisma.publication.update({
+          where: { id: review.publicationId },
+          data: {
+            rating: avgRating,
+            reviewCount: approvedReviews.length,
+          },
+        });
+      } else {
+        // No more approved reviews, reset to 0
+        await prisma.publication.update({
+          where: { id: review.publicationId },
+          data: {
+            rating: 0,
+            reviewCount: 0,
+          },
+        });
+      }
+    }
+
+    return NextResponse.json({ message: 'Review deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting review:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete review' },
+      { status: 500 }
+    );
+  }
+});

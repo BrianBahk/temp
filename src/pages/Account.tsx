@@ -12,6 +12,8 @@ import {
   XCircle,
   ShoppingBag,
   Package,
+  Clock,
+  MessageSquare,
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -46,6 +48,29 @@ const Account = () => {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+
+  // Calculate time remaining for subscriptions
+  const getTimeRemaining = (endDate: string) => {
+    const now = new Date();
+    const end = new Date(endDate);
+    const diffTime = end.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) return "Expired";
+    if (diffDays === 0) return "Expires today";
+    if (diffDays === 1) return "1 day left";
+    if (diffDays < 30) return `${diffDays} days left`;
+    
+    const months = Math.floor(diffDays / 30);
+    if (months === 1) return "1 month left";
+    if (months < 12) return `${months} months left`;
+    
+    const years = Math.floor(months / 12);
+    const remainingMonths = months % 12;
+    if (years === 1 && remainingMonths === 0) return "1 year left";
+    if (remainingMonths === 0) return `${years} years left`;
+    return `${years}y ${remainingMonths}m left`;
+  };
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -103,9 +128,6 @@ const Account = () => {
 
   const activeSubscriptions = user.subscriptions.filter(
     (s) => s.status === "active"
-  );
-  const cancelledSubscriptions = user.subscriptions.filter(
-    (s) => s.status === "cancelled"
   );
 
   return (
@@ -175,10 +197,10 @@ const Account = () => {
               </TabsList>
 
               <TabsContent value="subscriptions">
-                <div className="bg-card rounded-xl border border-border p-6 mb-6">
+                <div className="bg-card rounded-xl border border-border p-6">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="font-semibold text-lg">
-                      Active Subscriptions
+                      Your Subscriptions
                     </h2>
                     <Link href="/catalog">
                       <Button variant="outline" size="sm">
@@ -201,9 +223,10 @@ const Account = () => {
                       {activeSubscriptions.map((subscription) => (
                         <div
                           key={subscription.id}
-                          className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg"
+                          className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer"
+                          onClick={() => router.push(`/publication/${subscription.publicationId}`)}
                         >
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-4 flex-1">
                             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                               {subscription.type === "magazine" ? (
                                 <BookOpen className="w-5 h-5 text-primary" />
@@ -211,37 +234,49 @@ const Account = () => {
                                 <Newspaper className="w-5 h-5 text-primary" />
                               )}
                             </div>
-                            <div>
+                            <div className="flex-1">
                               <h4 className="font-medium">
                                 {subscription.publicationTitle}
                               </h4>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Calendar className="w-3 h-3" />
-                                <span>
-                                  Renews{" "}
-                                  {new Date(
-                                    subscription.endDate
-                                  ).toLocaleDateString()}
-                                </span>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  <span>
+                                    Renews{" "}
+                                    {new Date(
+                                      subscription.endDate
+                                    ).toLocaleDateString()}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1 text-primary font-medium">
+                                  <Clock className="w-3 h-3" />
+                                  <span>{getTimeRemaining(subscription.endDate)}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Badge
+                            <Button
                               variant="outline"
-                              className="bg-success/10 text-success border-success/20"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/publication/${subscription.publicationId}`);
+                              }}
                             >
-                              Active
-                            </Badge>
+                              <MessageSquare className="w-4 h-4 mr-1" />
+                              Review
+                            </Button>
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() =>
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 handleCancelSubscription(
                                   subscription.id,
                                   subscription.publicationTitle
-                                )
-                              }
+                                );
+                              }}
                             >
                               <XCircle className="w-4 h-4 text-muted-foreground" />
                             </Button>
@@ -251,44 +286,6 @@ const Account = () => {
                     </div>
                   )}
                 </div>
-
-                {cancelledSubscriptions.length > 0 && (
-                  <div className="bg-card rounded-xl border border-border p-6">
-                    <h2 className="font-semibold text-lg mb-4">
-                      Cancelled Subscriptions
-                    </h2>
-                    <div className="space-y-4">
-                      {cancelledSubscriptions.map((subscription) => (
-                        <div
-                          key={subscription.id}
-                          className="flex items-center justify-between p-4 bg-muted/50 rounded-lg opacity-60"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                              {subscription.type === "magazine" ? (
-                                <BookOpen className="w-5 h-5 text-muted-foreground" />
-                              ) : (
-                                <Newspaper className="w-5 h-5 text-muted-foreground" />
-                              )}
-                            </div>
-                            <div>
-                              <h4 className="font-medium">
-                                {subscription.publicationTitle}
-                              </h4>
-                              <p className="text-sm text-muted-foreground">
-                                Ended{" "}
-                                {new Date(
-                                  subscription.endDate
-                                ).toLocaleDateString()}
-                              </p>
-                            </div>
-                          </div>
-                          <Badge variant="secondary">Cancelled</Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </TabsContent>
 
               <TabsContent value="orders">

@@ -50,28 +50,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
   const login = useCallback(async (email: string, password: string) => {
-    // Mock login - in real app, this would call an API
-    if (email && password) {
-      setUser({ ...mockUser, email });
-      return true;
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   }, []);
 
   const signup = useCallback(
     async (name: string, email: string, password: string) => {
-      // Mock signup
-      if (name && email && password) {
-        setUser({
-          id: Math.random().toString(36).substr(2, 9),
-          email,
-          name,
-          points: 0,
-          subscriptions: [],
+      try {
+        const response = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, password }),
         });
-        return true;
+
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Signup error:', error);
+        return false;
       }
-      return false;
     },
     []
   );

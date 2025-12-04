@@ -65,7 +65,7 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
       );
     }
 
-    // Check if user has purchased this publication
+    // Check if user has purchased this publication or has an active subscription
     const hasPurchased = await prisma.orderItem.findFirst({
       where: {
         publicationId,
@@ -76,9 +76,17 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
       },
     });
 
-    if (!hasPurchased) {
+    const hasSubscription = await prisma.subscription.findFirst({
+      where: {
+        publicationId,
+        userId: user.id,
+        status: 'active',
+      },
+    });
+
+    if (!hasPurchased && !hasSubscription) {
       return NextResponse.json(
-        { error: 'You can only review items you have purchased' },
+        { error: 'You can only review items you have purchased or subscribed to' },
         { status: 403 }
       );
     }

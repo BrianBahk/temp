@@ -13,9 +13,11 @@ import {
   ThumbsDown, 
   Clock,
   Star,
-  ArrowLeft
+  ArrowLeft,
+  Trash2
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Review {
   id: string;
@@ -40,23 +42,29 @@ export default function AdminReviews() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("pending");
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchReviews(activeTab);
-  }, [activeTab]);
+    if (user && user.role === 'admin') {
+      fetchReviews(activeTab);
+    }
+  }, [activeTab, user]);
 
   const fetchReviews = async (status: string) => {
     try {
       setLoading(true);
-      // In a real app, this would make an API call with admin authentication
-      // const response = await fetch(`/api/admin/reviews?status=${status}`, {
-      //   headers: { 'x-user-id': 'admin-id' }
-      // });
-      // const data = await response.json();
-      // setReviews(data);
+      if (!user) return;
       
-      // Simulated data for now
-      setReviews([]);
+      const response = await fetch(`/api/admin/reviews?status=${status}`, {
+        headers: { 'x-user-id': user.id }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setReviews(data);
+      } else {
+        toast.error("Failed to load reviews");
+      }
     } catch (error) {
       console.error("Error fetching reviews:", error);
       toast.error("Failed to load reviews");
@@ -67,18 +75,23 @@ export default function AdminReviews() {
 
   const handleApprove = async (reviewId: string) => {
     try {
-      // In a real app:
-      // await fetch(`/api/admin/reviews/${reviewId}`, {
-      //   method: 'PATCH',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'x-user-id': 'admin-id'
-      //   },
-      //   body: JSON.stringify({ status: 'approved' })
-      // });
+      if (!user) return;
       
-      toast.success("Review approved successfully");
-      fetchReviews(activeTab);
+      const response = await fetch(`/api/admin/reviews/${reviewId}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': user.id
+        },
+        body: JSON.stringify({ status: 'approved' })
+      });
+      
+      if (response.ok) {
+        toast.success("Review approved successfully");
+        fetchReviews(activeTab);
+      } else {
+        toast.error("Failed to approve review");
+      }
     } catch (error) {
       console.error("Error approving review:", error);
       toast.error("Failed to approve review");
@@ -87,21 +100,53 @@ export default function AdminReviews() {
 
   const handleReject = async (reviewId: string) => {
     try {
-      // In a real app:
-      // await fetch(`/api/admin/reviews/${reviewId}`, {
-      //   method: 'PATCH',
-      //   headers: { 
-      //     'Content-Type': 'application/json',
-      //     'x-user-id': 'admin-id'
-      //   },
-      //   body: JSON.stringify({ status: 'rejected' })
-      // });
+      if (!user) return;
       
-      toast.success("Review rejected");
-      fetchReviews(activeTab);
+      const response = await fetch(`/api/admin/reviews/${reviewId}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': user.id
+        },
+        body: JSON.stringify({ status: 'rejected' })
+      });
+      
+      if (response.ok) {
+        toast.success("Review rejected");
+        fetchReviews(activeTab);
+      } else {
+        toast.error("Failed to reject review");
+      }
     } catch (error) {
       console.error("Error rejecting review:", error);
       toast.error("Failed to reject review");
+    }
+  };
+
+  const handleDelete = async (reviewId: string) => {
+    if (!confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      if (!user) return;
+      
+      const response = await fetch(`/api/admin/reviews/${reviewId}`, {
+        method: 'DELETE',
+        headers: { 
+          'x-user-id': user.id
+        }
+      });
+      
+      if (response.ok) {
+        toast.success("Review deleted successfully");
+        fetchReviews(activeTab);
+      } else {
+        toast.error("Failed to delete review");
+      }
+    } catch (error) {
+      console.error("Error deleting review:", error);
+      toast.error("Failed to delete review");
     }
   };
 
@@ -153,27 +198,38 @@ export default function AdminReviews() {
 
             <p className="text-sm mb-4">{review.comment}</p>
 
-            {review.status === "pending" && (
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => handleApprove(review.id)}
-                  className="flex items-center gap-1"
-                >
-                  <ThumbsUp className="h-4 w-4" />
-                  Approve
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleReject(review.id)}
-                  className="flex items-center gap-1"
-                >
-                  <ThumbsDown className="h-4 w-4" />
-                  Reject
-                </Button>
-              </div>
-            )}
+            <div className="flex gap-2">
+              {review.status === "pending" && (
+                <>
+                  <Button
+                    size="sm"
+                    onClick={() => handleApprove(review.id)}
+                    className="flex items-center gap-1"
+                  >
+                    <ThumbsUp className="h-4 w-4" />
+                    Approve
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleReject(review.id)}
+                    className="flex items-center gap-1"
+                  >
+                    <ThumbsDown className="h-4 w-4" />
+                    Reject
+                  </Button>
+                </>
+              )}
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => handleDelete(review.id)}
+                className="flex items-center gap-1 ml-auto"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

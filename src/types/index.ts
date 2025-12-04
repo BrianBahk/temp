@@ -25,6 +25,7 @@ export interface User {
   email: string;
   name: string;
   points: number;
+  role?: string;
   subscriptions: Subscription[];
 }
 

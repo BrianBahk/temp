@@ -194,7 +194,7 @@ async function main() {
   });
   console.log(`Created admin user: ${admin.email}`);
   
-  // Create test regular user
+  // Create test regular user (now admin for testing)
   const testUserPassword = await bcrypt.hash('test123', 10);
   const testUser = await prisma.user.upsert({
     where: { email: 'test@example.com' },
@@ -203,7 +203,7 @@ async function main() {
       email: 'test@example.com',
       name: 'Test User',
       password: testUserPassword,
-      role: 'user',
+      role: 'admin', // Changed to admin for testing delete functionality
       points: 100,
       pointsEarned: 100,
     },
@@ -219,6 +219,126 @@ async function main() {
     console.log(`Created publication with id: ${publication.id}`);
   }
   
+  // Create subscriptions for test user with expiration dates
+  const now = new Date();
+  const oneYearFromNow = new Date(now);
+  oneYearFromNow.setFullYear(now.getFullYear() + 1);
+  
+  const sixMonthsFromNow = new Date(now);
+  sixMonthsFromNow.setMonth(now.getMonth() + 6);
+  
+  const threeMonthsFromNow = new Date(now);
+  threeMonthsFromNow.setMonth(now.getMonth() + 3);
+  
+  // Active subscriptions
+  await prisma.subscription.create({
+    data: {
+      userId: testUser.id,
+      publicationId: '1', // The Economist
+      startDate: now,
+      endDate: oneYearFromNow,
+      status: 'active',
+      orderNumber: 'ORD-SUB-001',
+    },
+  });
+  
+  await prisma.subscription.create({
+    data: {
+      userId: testUser.id,
+      publicationId: '2', // National Geographic
+      startDate: now,
+      endDate: sixMonthsFromNow,
+      status: 'active',
+      orderNumber: 'ORD-SUB-002',
+    },
+  });
+  
+  await prisma.subscription.create({
+    data: {
+      userId: testUser.id,
+      publicationId: '6', // Wall Street Journal
+      startDate: now,
+      endDate: threeMonthsFromNow,
+      status: 'active',
+      orderNumber: 'ORD-SUB-003',
+    },
+  });
+  
+  console.log('Created test user subscriptions');
+  
+  // Create sample approved reviews
+  await prisma.review.create({
+    data: {
+      userId: testUser.id,
+      publicationId: '3', // The New Yorker
+      rating: 5,
+      comment: 'Absolutely love the in-depth journalism and thought-provoking articles. The cartoons are a delightful bonus!',
+      status: 'approved',
+    },
+  });
+  
+  await prisma.review.create({
+    data: {
+      userId: admin.id,
+      publicationId: '1', // The Economist
+      rating: 5,
+      comment: 'The best source for global business and political news. Excellent analysis and writing quality.',
+      status: 'approved',
+    },
+  });
+  
+  await prisma.review.create({
+    data: {
+      userId: admin.id,
+      publicationId: '2', // National Geographic
+      rating: 5,
+      comment: 'Stunning photography and fascinating articles about our planet. A must-read for nature lovers.',
+      status: 'approved',
+    },
+  });
+  
+  await prisma.review.create({
+    data: {
+      userId: admin.id,
+      publicationId: '4', // Wired
+      rating: 4,
+      comment: 'Great coverage of emerging technology trends. Sometimes a bit too technical, but always interesting.',
+      status: 'approved',
+    },
+  });
+  
+  await prisma.review.create({
+    data: {
+      userId: testUser.id,
+      publicationId: '6', // Wall Street Journal
+      rating: 5,
+      comment: 'Outstanding financial news and analysis. Essential reading for anyone interested in markets and economy.',
+      status: 'approved',
+    },
+  });
+  
+  // Create some pending reviews for testing delete functionality
+  await prisma.review.create({
+    data: {
+      userId: admin.id,
+      publicationId: '5', // Time Magazine
+      rating: 4,
+      comment: 'Good coverage of current events, though sometimes feels a bit rushed.',
+      status: 'pending',
+    },
+  });
+  
+  await prisma.review.create({
+    data: {
+      userId: testUser.id,
+      publicationId: '7', // The New York Times
+      rating: 5,
+      comment: 'Excellent journalism and comprehensive coverage of national and international news.',
+      status: 'pending',
+    },
+  });
+  
+  console.log('Created sample reviews');
   console.log('Seeding finished.');
 }
 

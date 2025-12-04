@@ -66,13 +66,11 @@ const PublicationDetail = () => {
   const fetchReviews = async () => {
     try {
       setLoadingReviews(true);
-      // In a real app:
-      // const response = await fetch(`/api/reviews?publicationId=${id}&status=approved`);
-      // const data = await response.json();
-      // setReviews(data);
-      
-      // Simulated data for now
-      setReviews([]);
+      const response = await fetch(`/api/reviews?publicationId=${id}&status=approved`);
+      if (response.ok) {
+        const data = await response.json();
+        setReviews(data);
+      }
     } catch (error) {
       console.error("Error fetching reviews:", error);
     } finally {
@@ -82,25 +80,47 @@ const PublicationDetail = () => {
 
   const checkPurchaseStatus = async () => {
     try {
-      // In a real app, check if user has purchased this publication
-      // const response = await fetch(`/api/orders`, {
-      //   headers: { 'x-user-id': user.id }
-      // });
-      // const orders = await response.json();
-      // const purchased = orders.some(order =>
-      //   order.orderItems.some(item => item.publicationId === id)
-      // );
-      // setHasPurchased(purchased);
+      if (!user) return;
+      
+      let purchased = false;
+      
+      // Check if user has an active subscription to this publication
+      const hasSubscription = user.subscriptions.some(
+        sub => sub.publicationId === id && sub.status === 'active'
+      );
+      
+      if (hasSubscription) {
+        purchased = true;
+      } else {
+        // Check orders via API
+        const response = await fetch('/api/orders', {
+          headers: { 'x-user-id': user.id }
+        });
+        
+        if (response.ok) {
+          const orders = await response.json();
+          console.log('Orders:', orders);
+          console.log('Looking for publicationId:', id);
+          purchased = orders.some((order: any) => {
+            const hasItem = order.orderItems.some((item: any) => {
+              console.log('Comparing:', item.publicationId, '===', id, '?', item.publicationId === id);
+              return item.publicationId === id;
+            });
+            return hasItem;
+          });
+          console.log('Has purchased:', purchased);
+        }
+      }
+      
+      setHasPurchased(purchased);
       
       // Check if user already reviewed
-      // const reviewsResponse = await fetch(`/api/reviews?publicationId=${id}`);
-      // const allReviews = await reviewsResponse.json();
-      // const userReview = allReviews.find(r => r.userId === user.id);
-      // setHasReviewed(!!userReview);
-      
-      // Simulated for now
-      setHasPurchased(false);
-      setHasReviewed(false);
+      const reviewsResponse = await fetch(`/api/reviews?publicationId=${id}`);
+      if (reviewsResponse.ok) {
+        const allReviews = await reviewsResponse.json();
+        const userReview = allReviews.find((r: any) => r.userId === user.id);
+        setHasReviewed(!!userReview);
+      }
     } catch (error) {
       console.error("Error checking purchase status:", error);
     }
@@ -113,7 +133,7 @@ const PublicationDetail = () => {
     }
 
     if (!hasPurchased) {
-      toast.error("You can only review items you have purchased");
+      toast.error("You can only review items you have purchased or subscribed to");
       return;
     }
 
@@ -129,24 +149,28 @@ const PublicationDetail = () => {
 
     try {
       setSubmittingReview(true);
-      // In a real app:
-      // await fetch('/api/reviews', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'x-user-id': user.id
-      //   },
-      //   body: JSON.stringify({
-      //     publicationId: id,
-      //     rating,
-      //     comment
-      //   })
-      // });
+      const response = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': user.id
+        },
+        body: JSON.stringify({
+          publicationId: id,
+          rating,
+          comment
+        })
+      });
       
-      toast.success("Review submitted! It will be visible after admin approval.");
-      setRating(0);
-      setComment("");
-      setHasReviewed(true);
+      if (response.ok) {
+        toast.success("Review submitted! It will be visible after admin approval.");
+        setRating(0);
+        setComment("");
+        setHasReviewed(true);
+      } else {
+        const error = await response.json();
+        toast.error(error.error || "Failed to submit review");
+      }
     } catch (error) {
       console.error("Error submitting review:", error);
       toast.error("Failed to submit review");
@@ -395,7 +419,7 @@ const PublicationDetail = () => {
               <Card className="mb-8 bg-amber-50 border-amber-200">
                 <CardContent className="pt-6">
                   <p className="text-sm text-amber-800">
-                    Purchase this publication to leave a review.
+                    Purchase or subscribe to this publication to leave a review.
                   </p>
                 </CardContent>
               </Card>
