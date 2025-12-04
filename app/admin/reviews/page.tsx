@@ -7,14 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  MessageSquare, 
-  ThumbsUp, 
-  ThumbsDown, 
+import {
+  MessageSquare,
+  ThumbsUp,
+  ThumbsDown,
   Clock,
   Star,
   ArrowLeft,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,7 +45,7 @@ export default function AdminReviews() {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user && user.role === 'admin') {
+    if (user && user.role === "admin") {
       fetchReviews(activeTab);
     }
   }, [activeTab, user]);
@@ -54,11 +54,11 @@ export default function AdminReviews() {
     try {
       setLoading(true);
       if (!user) return;
-      
+
       const response = await fetch(`/api/admin/reviews?status=${status}`, {
-        headers: { 'x-user-id': user.id }
+        headers: { "x-user-id": user.id },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setReviews(data);
@@ -76,16 +76,16 @@ export default function AdminReviews() {
   const handleApprove = async (reviewId: string) => {
     try {
       if (!user) return;
-      
+
       const response = await fetch(`/api/admin/reviews/${reviewId}`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-id': user.id
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": user.id,
         },
-        body: JSON.stringify({ status: 'approved' })
+        body: JSON.stringify({ status: "approved" }),
       });
-      
+
       if (response.ok) {
         toast.success("Review approved successfully");
         fetchReviews(activeTab);
@@ -101,16 +101,16 @@ export default function AdminReviews() {
   const handleReject = async (reviewId: string) => {
     try {
       if (!user) return;
-      
+
       const response = await fetch(`/api/admin/reviews/${reviewId}`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-user-id': user.id
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": user.id,
         },
-        body: JSON.stringify({ status: 'rejected' })
+        body: JSON.stringify({ status: "rejected" }),
       });
-      
+
       if (response.ok) {
         toast.success("Review rejected");
         fetchReviews(activeTab);
@@ -124,20 +124,24 @@ export default function AdminReviews() {
   };
 
   const handleDelete = async (reviewId: string) => {
-    if (!confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this review? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
     try {
       if (!user) return;
-      
+
       const response = await fetch(`/api/admin/reviews/${reviewId}`, {
-        method: 'DELETE',
-        headers: { 
-          'x-user-id': user.id
-        }
+        method: "DELETE",
+        headers: {
+          "x-user-id": user.id,
+        },
       });
-      
+
       if (response.ok) {
         toast.success("Review deleted successfully");
         fetchReviews(activeTab);

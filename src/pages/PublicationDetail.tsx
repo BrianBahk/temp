@@ -66,7 +66,9 @@ const PublicationDetail = () => {
   const fetchReviews = async () => {
     try {
       setLoadingReviews(true);
-      const response = await fetch(`/api/reviews?publicationId=${id}&status=approved`);
+      const response = await fetch(
+        `/api/reviews?publicationId=${id}&status=approved`
+      );
       if (response.ok) {
         const data = await response.json();
         setReviews(data);
@@ -81,39 +83,46 @@ const PublicationDetail = () => {
   const checkPurchaseStatus = async () => {
     try {
       if (!user) return;
-      
+
       let purchased = false;
-      
+
       // Check if user has an active subscription to this publication
       const hasSubscription = user.subscriptions.some(
-        sub => sub.publicationId === id && sub.status === 'active'
+        (sub) => sub.publicationId === id && sub.status === "active"
       );
-      
+
       if (hasSubscription) {
         purchased = true;
       } else {
         // Check orders via API
-        const response = await fetch('/api/orders', {
-          headers: { 'x-user-id': user.id }
+        const response = await fetch("/api/orders", {
+          headers: { "x-user-id": user.id },
         });
-        
+
         if (response.ok) {
           const orders = await response.json();
-          console.log('Orders:', orders);
-          console.log('Looking for publicationId:', id);
+          console.log("Orders:", orders);
+          console.log("Looking for publicationId:", id);
           purchased = orders.some((order: any) => {
             const hasItem = order.orderItems.some((item: any) => {
-              console.log('Comparing:', item.publicationId, '===', id, '?', item.publicationId === id);
+              console.log(
+                "Comparing:",
+                item.publicationId,
+                "===",
+                id,
+                "?",
+                item.publicationId === id
+              );
               return item.publicationId === id;
             });
             return hasItem;
           });
-          console.log('Has purchased:', purchased);
+          console.log("Has purchased:", purchased);
         }
       }
-      
+
       setHasPurchased(purchased);
-      
+
       // Check if user already reviewed
       const reviewsResponse = await fetch(`/api/reviews?publicationId=${id}`);
       if (reviewsResponse.ok) {
@@ -133,7 +142,9 @@ const PublicationDetail = () => {
     }
 
     if (!hasPurchased) {
-      toast.error("You can only review items you have purchased or subscribed to");
+      toast.error(
+        "You can only review items you have purchased or subscribed to"
+      );
       return;
     }
 
@@ -149,21 +160,23 @@ const PublicationDetail = () => {
 
     try {
       setSubmittingReview(true);
-      const response = await fetch('/api/reviews', {
-        method: 'POST',
+      const response = await fetch("/api/reviews", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': user.id
+          "Content-Type": "application/json",
+          "x-user-id": user.id,
         },
         body: JSON.stringify({
           publicationId: id,
           rating,
-          comment
-        })
+          comment,
+        }),
       });
-      
+
       if (response.ok) {
-        toast.success("Review submitted! It will be visible after admin approval.");
+        toast.success(
+          "Review submitted! It will be visible after admin approval."
+        );
         setRating(0);
         setComment("");
         setHasReviewed(true);
@@ -347,7 +360,7 @@ const PublicationDetail = () => {
         {/* Reviews Section */}
         <div className="mt-16">
           <Separator className="mb-8" />
-          
+
           <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
             <MessageSquare className="w-6 h-6" />
             Customer Reviews
@@ -400,7 +413,9 @@ const PublicationDetail = () => {
 
                     <Button
                       onClick={handleSubmitReview}
-                      disabled={submittingReview || rating === 0 || !comment.trim()}
+                      disabled={
+                        submittingReview || rating === 0 || !comment.trim()
+                      }
                     >
                       {submittingReview ? "Submitting..." : "Submit Review"}
                     </Button>

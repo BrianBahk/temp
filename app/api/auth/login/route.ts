@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 /**
  * POST /api/auth/login
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: "Email and password are required" },
         { status: 400 }
       );
     }
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         role: true,
         points: true,
         subscriptions: {
-          where: { status: 'active' },
+          where: { status: "active" },
           select: {
             id: true,
             publicationId: true,
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Invalid email or password' },
+        { error: "Invalid email or password" },
         { status: 401 }
       );
     }
@@ -60,16 +60,16 @@ export async function POST(request: NextRequest) {
 
     if (!isValidPassword) {
       return NextResponse.json(
-        { error: 'Invalid email or password' },
+        { error: "Invalid email or password" },
         { status: 401 }
       );
     }
 
     // Return user data (excluding password)
     const { password: _, ...userWithoutPassword } = user;
-    
+
     // Transform subscriptions to match frontend format
-    const formattedSubscriptions = user.subscriptions.map(sub => ({
+    const formattedSubscriptions = user.subscriptions.map((sub) => ({
       id: sub.id,
       publicationId: sub.publicationId,
       publicationTitle: sub.publication.title,
@@ -85,9 +85,9 @@ export async function POST(request: NextRequest) {
       subscriptions: formattedSubscriptions,
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     return NextResponse.json(
-      { error: 'Authentication failed' },
+      { error: "Authentication failed" },
       { status: 500 }
     );
   }

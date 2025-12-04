@@ -1,16 +1,16 @@
 "use client";
 
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { categories } from '@/data/publications';
-import { PublicationType } from '@/types';
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { categories } from "@/data/publications";
+import { PublicationType } from "@/types";
 
 interface CatalogFiltersProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  selectedType: PublicationType | 'all';
-  onTypeChange: (type: PublicationType | 'all') => void;
+  selectedType: PublicationType | "all";
+  onTypeChange: (type: PublicationType | "all") => void;
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
   selectedCity: string;
@@ -46,15 +46,15 @@ export function CatalogFilters({
       <div>
         <h4 className="text-sm font-medium mb-3">Type</h4>
         <div className="flex flex-wrap gap-2">
-          {(['all', 'magazine', 'newspaper'] as const).map((type) => (
+          {(["all", "magazine", "newspaper"] as const).map((type) => (
             <Button
               key={type}
-              variant={selectedType === type ? 'default' : 'outline'}
+              variant={selectedType === type ? "default" : "outline"}
               size="sm"
               onClick={() => onTypeChange(type)}
               className="capitalize"
             >
-              {type === 'all' ? 'All' : `${type}s`}
+              {type === "all" ? "All" : `${type}s`}
             </Button>
           ))}
         </div>
@@ -67,7 +67,7 @@ export function CatalogFilters({
           {categories.map((category) => (
             <Button
               key={category}
-              variant={selectedCategory === category ? 'default' : 'outline'}
+              variant={selectedCategory === category ? "default" : "outline"}
               size="sm"
               onClick={() => onCategoryChange(category)}
             >
@@ -78,21 +78,21 @@ export function CatalogFilters({
       </div>
 
       {/* City Filter - Only show for newspapers */}
-      {selectedType === 'newspaper' && cities.length > 0 && (
+      {selectedType === "newspaper" && cities.length > 0 && (
         <div>
           <h4 className="text-sm font-medium mb-3">City</h4>
           <div className="flex flex-wrap gap-2">
             <Button
-              variant={selectedCity === 'All' ? 'default' : 'outline'}
+              variant={selectedCity === "All" ? "default" : "outline"}
               size="sm"
-              onClick={() => onCityChange('All')}
+              onClick={() => onCityChange("All")}
             >
               All Cities
             </Button>
             {cities.map((city) => (
               <Button
                 key={city}
-                variant={selectedCity === city ? 'default' : 'outline'}
+                variant={selectedCity === city ? "default" : "outline"}
                 size="sm"
                 onClick={() => onCityChange(city)}
               >

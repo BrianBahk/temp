@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 /**
  * POST /api/auth/signup
@@ -13,14 +13,14 @@ export async function POST(request: NextRequest) {
 
     if (!name || !email || !password) {
       return NextResponse.json(
-        { error: 'Name, email, and password are required' },
+        { error: "Name, email, and password are required" },
         { status: 400 }
       );
     }
 
     if (password.length < 6) {
       return NextResponse.json(
-        { error: 'Password must be at least 6 characters' },
+        { error: "Password must be at least 6 characters" },
         { status: 400 }
       );
     }
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User with this email already exists' },
+        { error: "User with this email already exists" },
         { status: 400 }
       );
     }
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         name,
         email,
         password: hashedPassword,
-        role: 'user',
+        role: "user",
         points: 0,
         pointsEarned: 0,
       },
@@ -55,14 +55,17 @@ export async function POST(request: NextRequest) {
     // Return user data (excluding password)
     const { password: _, ...userWithoutPassword } = user;
 
-    return NextResponse.json({
-      ...userWithoutPassword,
-      subscriptions: [],
-    }, { status: 201 });
-  } catch (error) {
-    console.error('Signup error:', error);
     return NextResponse.json(
-      { error: 'Failed to create account' },
+      {
+        ...userWithoutPassword,
+        subscriptions: [],
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Signup error:", error);
+    return NextResponse.json(
+      { error: "Failed to create account" },
       { status: 500 }
     );
   }

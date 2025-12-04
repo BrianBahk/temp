@@ -3,6 +3,7 @@
 ## Authentication
 
 All authenticated endpoints require a user ID header:
+
 ```
 x-user-id: <user-id>
 ```
@@ -14,15 +15,18 @@ Admin endpoints require the user to have `role: "admin"` in the database.
 ## Reviews API
 
 ### Get Reviews
+
 **GET** `/api/reviews`
 
 Fetch reviews for a specific publication.
 
 **Query Parameters:**
+
 - `publicationId` (required): ID of the publication
 - `status` (optional, default: "approved"): Filter by review status (pending/approved/rejected)
 
 **Response:** `200 OK`
+
 ```json
 [
   {
@@ -43,14 +47,17 @@ Fetch reviews for a specific publication.
 ---
 
 ### Create Review
+
 **POST** `/api/reviews`
 
 Create a new review for a purchased publication.
 
 **Headers:**
+
 - `x-user-id`: User ID (required)
 
 **Request Body:**
+
 ```json
 {
   "publicationId": "publication-id",
@@ -60,11 +67,13 @@ Create a new review for a purchased publication.
 ```
 
 **Validation:**
+
 - User must have purchased the publication
 - User can only review each publication once
 - Rating must be between 1-5
 
 **Response:** `201 Created`
+
 ```json
 {
   "id": "review-id",
@@ -83,6 +92,7 @@ Create a new review for a purchased publication.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request`: Invalid input or user already reviewed
 - `401 Unauthorized`: Not authenticated
 - `403 Forbidden`: User hasn't purchased this publication
@@ -92,17 +102,21 @@ Create a new review for a purchased publication.
 ## Admin Reviews API
 
 ### Get All Reviews (Admin)
+
 **GET** `/api/admin/reviews`
 
 Get all reviews with optional status filter.
 
 **Headers:**
+
 - `x-user-id`: Admin user ID (required)
 
 **Query Parameters:**
+
 - `status` (optional): Filter by status (pending/approved/rejected)
 
 **Response:** `200 OK`
+
 ```json
 [
   {
@@ -127,19 +141,23 @@ Get all reviews with optional status filter.
 ```
 
 **Error Response:**
+
 - `403 Forbidden`: User is not an admin
 
 ---
 
 ### Get Single Review (Admin)
+
 **GET** `/api/admin/reviews/[id]`
 
 Get details of a specific review.
 
 **Headers:**
+
 - `x-user-id`: Admin user ID (required)
 
 **Response:** `200 OK`
+
 ```json
 {
   "id": "review-id",
@@ -162,20 +180,24 @@ Get details of a specific review.
 ```
 
 **Error Responses:**
+
 - `403 Forbidden`: User is not an admin
 - `404 Not Found`: Review doesn't exist
 
 ---
 
 ### Approve/Reject Review (Admin)
+
 **PATCH** `/api/admin/reviews/[id]`
 
 Approve or reject a pending review.
 
 **Headers:**
+
 - `x-user-id`: Admin user ID (required)
 
 **Request Body:**
+
 ```json
 {
   "status": "approved"
@@ -183,10 +205,12 @@ Approve or reject a pending review.
 ```
 
 **Status Options:**
+
 - `approved`: Approve the review (updates publication rating)
 - `rejected`: Reject the review
 
 **Response:** `200 OK`
+
 ```json
 {
   "id": "review-id",
@@ -201,9 +225,11 @@ Approve or reject a pending review.
 ```
 
 **Side Effects:**
+
 - When approved, recalculates the publication's average rating and review count
 
 **Error Responses:**
+
 - `400 Bad Request`: Invalid status value
 - `403 Forbidden`: User is not an admin
 
@@ -212,14 +238,17 @@ Approve or reject a pending review.
 ## Orders API
 
 ### Create Order
+
 **POST** `/api/orders`
 
 Create a new order from cart items and apply points.
 
 **Headers:**
+
 - `x-user-id`: User ID (required)
 
 **Request Body:**
+
 ```json
 {
   "pointsToUse": 50
@@ -227,18 +256,20 @@ Create a new order from cart items and apply points.
 ```
 
 **Order Calculation:**
+
 - Subtotal: Sum of all cart items
 - Tax: 8.25% applied only to magazines
 - Points: Deducted from total (1 point = $1)
 - Points Earned: 1 point per dollar spent (rounded down)
 
 **Response:** `201 Created`
+
 ```json
 {
   "id": "order-id",
   "orderNumber": "ORD-1733323200-A1B2C3D4",
   "userId": "user-id",
-  "subtotal": 100.00,
+  "subtotal": 100.0,
   "tax": 8.25,
   "pointsUsed": 50,
   "total": 58.25,
@@ -248,12 +279,12 @@ Create a new order from cart items and apply points.
     {
       "id": "item-id",
       "quantity": 1,
-      "price": 100.00,
+      "price": 100.0,
       "publication": {
         "id": "pub-id",
         "title": "Forbes",
         "type": "magazine",
-        "price": 100.00
+        "price": 100.0
       }
     }
   ]
@@ -261,26 +292,31 @@ Create a new order from cart items and apply points.
 ```
 
 **Side Effects:**
+
 - Clears user's cart
 - Deducts points used from user balance
 - Awards new points based on purchase amount
 - Creates order items for each cart item
 
 **Error Responses:**
+
 - `400 Bad Request`: Cart is empty or insufficient points
 - `401 Unauthorized`: Not authenticated
 
 ---
 
 ### Get User Orders
+
 **GET** `/api/orders`
 
 Get all orders for the authenticated user.
 
 **Headers:**
+
 - `x-user-id`: User ID (required)
 
 **Response:** `200 OK`
+
 ```json
 [
   {
@@ -300,18 +336,22 @@ Get all orders for the authenticated user.
 ---
 
 ### Get Single Order
+
 **GET** `/api/orders/[id]`
 
 Get details of a specific order.
 
 **Headers:**
+
 - `x-user-id`: User ID (required)
 
 **Authorization:**
+
 - Users can only view their own orders
 - Admins can view any order
 
 **Response:** `200 OK`
+
 ```json
 {
   "id": "order-id",
@@ -334,6 +374,7 @@ Get details of a specific order.
 ```
 
 **Error Responses:**
+
 - `403 Forbidden`: User trying to access another user's order
 - `404 Not Found`: Order doesn't exist
 
@@ -342,23 +383,27 @@ Get details of a specific order.
 ## Admin Orders API
 
 ### Get All Orders (Admin)
+
 **GET** `/api/admin/orders`
 
 Get all orders in the system.
 
 **Headers:**
+
 - `x-user-id`: Admin user ID (required)
 
 **Query Parameters:**
+
 - `status` (optional): Filter by order status (pending/completed/cancelled)
 
 **Response:** `200 OK`
+
 ```json
 [
   {
     "id": "order-id",
     "orderNumber": "ORD-1733323200-A1B2C3D4",
-    "subtotal": 100.00,
+    "subtotal": 100.0,
     "tax": 8.25,
     "pointsUsed": 50,
     "total": 58.25,
@@ -373,12 +418,12 @@ Get all orders in the system.
       {
         "id": "item-id",
         "quantity": 1,
-        "price": 100.00,
+        "price": 100.0,
         "publication": {
           "id": "pub-id",
           "title": "Forbes",
           "type": "magazine",
-          "price": 100.00
+          "price": 100.0
         }
       }
     ]
@@ -387,6 +432,7 @@ Get all orders in the system.
 ```
 
 **Error Response:**
+
 - `403 Forbidden`: User is not an admin
 
 ---
@@ -394,14 +440,17 @@ Get all orders in the system.
 ## User API
 
 ### Get Current User
+
 **GET** `/api/users/me`
 
 Get information about the currently authenticated user.
 
 **Headers:**
+
 - `x-user-id`: User ID (required)
 
 **Response:** `200 OK`
+
 ```json
 {
   "id": "user-id",
@@ -413,6 +462,7 @@ Get information about the currently authenticated user.
 ```
 
 **Error Response:**
+
 - `401 Unauthorized`: Not authenticated
 
 ---
@@ -420,17 +470,20 @@ Get information about the currently authenticated user.
 ## Publications API
 
 ### Get All Publications
+
 **GET** `/api/publications`
 
 Get all publications with optional filtering.
 
 **Query Parameters:**
+
 - `type` (optional): Filter by type (magazine/newspaper)
 - `category` (optional): Filter by category
 - `city` (optional): Filter newspapers by city
 - `featured` (optional): Filter by featured status (true/false)
 
 **Response:** `200 OK`
+
 ```json
 [
   {
@@ -455,11 +508,13 @@ Get all publications with optional filtering.
 ---
 
 ### Get Single Publication
+
 **GET** `/api/publications/[id]`
 
 Get details of a specific publication.
 
 **Response:** `200 OK`
+
 ```json
 {
   "id": "pub-id",
@@ -480,6 +535,7 @@ Get details of a specific publication.
 ```
 
 **Error Response:**
+
 - `404 Not Found`: Publication doesn't exist
 
 ---
@@ -487,6 +543,7 @@ Get details of a specific publication.
 ## Database Schema
 
 ### User
+
 ```prisma
 model User {
   id            String         @id @default(uuid())
@@ -506,6 +563,7 @@ model User {
 ```
 
 ### Publication
+
 ```prisma
 model Publication {
   id            String         @id @default(uuid())
@@ -530,6 +588,7 @@ model Publication {
 ```
 
 ### Review
+
 ```prisma
 model Review {
   id            String      @id @default(uuid())
@@ -546,6 +605,7 @@ model Review {
 ```
 
 ### Order
+
 ```prisma
 model Order {
   id            String        @id @default(uuid())
@@ -564,6 +624,7 @@ model Order {
 ```
 
 ### OrderItem
+
 ```prisma
 model OrderItem {
   id            String      @id @default(uuid())
@@ -582,11 +643,13 @@ model OrderItem {
 ## Business Logic
 
 ### Tax Calculation
+
 - Tax rate: 8.25%
 - Applied only to magazines
 - Newspapers are tax-exempt
 
 ### Points System
+
 - **Earning Points**: 1 point per dollar spent (rounded down)
   - Example: $58.25 purchase = 58 points earned
 - **Using Points**: 1 point = $1 discount
@@ -595,6 +658,7 @@ model OrderItem {
 - **Points Display**: Points balance shown in user account dashboard
 
 ### Review Workflow
+
 1. User purchases a publication
 2. User can submit a review (rating + comment)
 3. Review status is "pending" by default
@@ -603,6 +667,7 @@ model OrderItem {
 6. When approved, publication rating is recalculated
 
 ### Order Number Format
+
 `ORD-{timestamp}-{8-char-uuid}`
 
 Example: `ORD-1733323200-A1B2C3D4`
@@ -623,15 +688,15 @@ Example: `ORD-1733323200-A1B2C3D4`
 
 ## Error Codes
 
-| Status Code | Description |
-|-------------|-------------|
-| 200 | Success |
-| 201 | Created |
-| 400 | Bad Request - Invalid input |
-| 401 | Unauthorized - Not authenticated |
-| 403 | Forbidden - Insufficient permissions |
-| 404 | Not Found - Resource doesn't exist |
-| 500 | Internal Server Error |
+| Status Code | Description                          |
+| ----------- | ------------------------------------ |
+| 200         | Success                              |
+| 201         | Created                              |
+| 400         | Bad Request - Invalid input          |
+| 401         | Unauthorized - Not authenticated     |
+| 403         | Forbidden - Insufficient permissions |
+| 404         | Not Found - Resource doesn't exist   |
+| 500         | Internal Server Error                |
 
 ---
 

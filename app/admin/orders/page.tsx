@@ -6,12 +6,12 @@ import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  ShoppingCart, 
+import {
+  ShoppingCart,
   ArrowLeft,
   Calendar,
   DollarSign,
-  Package
+  Package,
 } from "lucide-react";
 
 interface Order {
@@ -58,7 +58,7 @@ export default function AdminOrders() {
       // });
       // const data = await response.json();
       // setOrders(data);
-      
+
       // Simulated data for now
       setOrders([]);
     } catch (error) {
@@ -82,7 +82,9 @@ export default function AdminOrders() {
             <ShoppingCart className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-3xl font-bold">Order Management</h1>
-              <p className="text-muted-foreground">View and manage all orders</p>
+              <p className="text-muted-foreground">
+                View and manage all orders
+              </p>
             </div>
           </div>
         </div>
@@ -130,7 +132,9 @@ export default function AdminOrders() {
                           <Calendar className="h-4 w-4" />
                           {new Date(order.createdAt).toLocaleString()}
                         </p>
-                        <p>Customer: {order.user.name} ({order.user.email})</p>
+                        <p>
+                          Customer: {order.user.name} ({order.user.email})
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -175,7 +179,7 @@ export default function AdminOrders() {
                         </div>
                       ))}
                     </div>
-                    
+
                     <div className="mt-4 pt-4 border-t space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span>Subtotal:</span>

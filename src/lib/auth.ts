@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from './prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "./prisma";
 
 export interface AuthUser {
   id: string;
@@ -13,11 +13,13 @@ export interface AuthUser {
  * Verify user session and return user data
  * In a real app, this would verify JWT token or session cookie
  */
-export async function verifyAuth(request: NextRequest): Promise<AuthUser | null> {
+export async function verifyAuth(
+  request: NextRequest
+): Promise<AuthUser | null> {
   try {
     // Get user ID from header (in real app, would decode from JWT/session)
-    const userId = request.headers.get('x-user-id');
-    
+    const userId = request.headers.get("x-user-id");
+
     if (!userId) {
       return null;
     }
@@ -35,7 +37,7 @@ export async function verifyAuth(request: NextRequest): Promise<AuthUser | null>
 
     return user;
   } catch (error) {
-    console.error('Auth verification error:', error);
+    console.error("Auth verification error:", error);
     return null;
   }
 }
@@ -43,13 +45,15 @@ export async function verifyAuth(request: NextRequest): Promise<AuthUser | null>
 /**
  * Verify if user is admin
  */
-export async function verifyAdmin(request: NextRequest): Promise<AuthUser | null> {
+export async function verifyAdmin(
+  request: NextRequest
+): Promise<AuthUser | null> {
   const user = await verifyAuth(request);
-  
-  if (!user || user.role !== 'admin') {
+
+  if (!user || user.role !== "admin") {
     return null;
   }
-  
+
   return user;
 }
 
@@ -57,18 +61,19 @@ export async function verifyAdmin(request: NextRequest): Promise<AuthUser | null
  * Middleware wrapper to require authentication
  */
 export function requireAuth(
-  handler: (request: NextRequest, user: AuthUser, context?: any) => Promise<NextResponse>
+  handler: (
+    request: NextRequest,
+    user: AuthUser,
+    context?: any
+  ) => Promise<NextResponse>
 ) {
   return async (request: NextRequest, context?: any) => {
     const user = await verifyAuth(request);
-    
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
+
     return handler(request, user, context);
   };
 }
@@ -77,18 +82,22 @@ export function requireAuth(
  * Middleware wrapper to require admin authentication
  */
 export function requireAdmin(
-  handler: (request: NextRequest, user: AuthUser, context?: any) => Promise<NextResponse>
+  handler: (
+    request: NextRequest,
+    user: AuthUser,
+    context?: any
+  ) => Promise<NextResponse>
 ) {
   return async (request: NextRequest, context?: any) => {
     const user = await verifyAdmin(request);
-    
+
     if (!user) {
       return NextResponse.json(
-        { error: 'Forbidden: Admin access required' },
+        { error: "Forbidden: Admin access required" },
         { status: 403 }
       );
     }
-    
+
     return handler(request, user, context);
   };
 }

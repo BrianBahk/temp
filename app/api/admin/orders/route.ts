@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAdmin } from '@/lib/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 /**
  * GET /api/admin/orders
@@ -9,7 +9,7 @@ import { requireAdmin } from '@/lib/auth';
 export const GET = requireAdmin(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
+    const status = searchParams.get("status");
 
     const orders = await prisma.order.findMany({
       where: status ? { status } : undefined,
@@ -35,15 +35,15 @@ export const GET = requireAdmin(async (request: NextRequest) => {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     return NextResponse.json(orders);
   } catch (error) {
-    console.error('Error fetching orders:', error);
+    console.error("Error fetching orders:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch orders' },
+      { error: "Failed to fetch orders" },
       { status: 500 }
     );
   }

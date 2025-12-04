@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAdmin } from '@/lib/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 /**
  * GET /api/admin/reviews?status=pending
@@ -9,7 +9,7 @@ import { requireAdmin } from '@/lib/auth';
 export const GET = requireAdmin(async (request: NextRequest) => {
   try {
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
+    const status = searchParams.get("status");
 
     const reviews = await prisma.review.findMany({
       where: status ? { status } : undefined,
@@ -31,15 +31,15 @@ export const GET = requireAdmin(async (request: NextRequest) => {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     return NextResponse.json(reviews);
   } catch (error) {
-    console.error('Error fetching reviews:', error);
+    console.error("Error fetching reviews:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch reviews' },
+      { error: "Failed to fetch reviews" },
       { status: 500 }
     );
   }

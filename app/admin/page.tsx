@@ -3,16 +3,22 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Layout } from "@/components/layout/Layout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  ShieldCheck, 
-  MessageSquare, 
-  ShoppingCart, 
+import {
+  ShieldCheck,
+  MessageSquare,
+  ShoppingCart,
   Users,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -151,9 +157,7 @@ export default function AdminDashboard() {
                     <ShoppingCart className="h-5 w-5" />
                     Order Management
                   </CardTitle>
-                  <CardDescription>
-                    View and manage all orders
-                  </CardDescription>
+                  <CardDescription>View and manage all orders</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Link href="/admin/orders">
@@ -194,7 +198,8 @@ export default function AdminDashboard() {
                       Admin Access
                     </h3>
                     <p className="text-sm text-blue-800">
-                      You have full administrative access to this platform. All actions are logged for security purposes.
+                      You have full administrative access to this platform. All
+                      actions are logged for security purposes.
                     </p>
                   </div>
                 </div>

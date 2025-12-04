@@ -15,7 +15,9 @@
 ### 1. User Registration & Authentication
 
 #### Test User Accounts (Pre-seeded):
+
 - **Admin Account**
+
   - Email: `admin@readsphere.com`
   - Password: `admin123`
   - Role: Admin
@@ -28,6 +30,7 @@
   - Starting Points: 100
 
 #### Testing Steps:
+
 1. ✅ Visit http://localhost:3000
 2. ✅ Click "Sign In"
 3. ✅ Try logging in with test user credentials
@@ -37,6 +40,7 @@
 ### 2. Browse & Filter Publications
 
 #### Testing Steps:
+
 1. ✅ Go to "Catalog" page
 2. ✅ Verify 13 publications are displayed
 3. ✅ Test filters:
@@ -50,6 +54,7 @@
 ### 3. Publication Detail Page
 
 #### Testing Steps:
+
 1. ✅ Click on any publication from catalog
 2. ✅ Verify pricing information:
    - Subtotal
@@ -66,6 +71,7 @@
 ### 4. Shopping Cart & Checkout
 
 #### Testing Steps:
+
 1. ✅ Add multiple publications to cart (mix of magazines and newspapers)
 2. ✅ Click cart icon in header
 3. ✅ Verify cart summary:
@@ -85,6 +91,7 @@
 ### 5. Account Dashboard
 
 #### Testing Steps:
+
 1. ✅ After purchase, go to "Account" page
 2. ✅ Verify tabs: Subscriptions / Purchase History
 3. ✅ Click "Purchase History" tab
@@ -104,6 +111,7 @@
 ### 6. Leave a Review
 
 #### Testing Steps:
+
 1. ✅ Go to a publication you purchased
 2. ✅ Scroll to Reviews section
 3. ✅ Verify review form is visible
@@ -117,6 +125,7 @@
 ### 7. Admin Dashboard
 
 #### Testing Steps:
+
 1. ✅ Sign out and sign in with admin account
 2. ✅ Go to http://localhost:3000/admin
 3. ✅ Verify admin dashboard displays:
@@ -132,6 +141,7 @@
 ### 8. Admin: Review Management
 
 #### Testing Steps:
+
 1. ✅ From admin dashboard, click "View Pending Reviews"
 2. ✅ Verify tabs: Pending / Approved / Rejected
 3. ✅ Verify pending reviews show:
@@ -150,6 +160,7 @@
 ### 9. Admin: Order Management
 
 #### Testing Steps:
+
 1. ✅ From admin dashboard, click "View All Orders"
 2. ✅ Verify all orders display:
    - Order number
@@ -163,6 +174,7 @@
 ### 10. Admin: User Management
 
 #### Testing Steps:
+
 1. ✅ From admin dashboard, click "View All Users"
 2. ✅ Verify user list shows:
    - Name and email
@@ -182,6 +194,7 @@
 ### 11. Points System Validation
 
 #### Test Points Earning:
+
 1. ✅ Start with known points balance (e.g., 100)
 2. ✅ Make a purchase of $58.25
 3. ✅ Don't use any points
@@ -189,6 +202,7 @@
 5. ✅ New balance should be: 100 + 58 = 158 points
 
 #### Test Points Usage:
+
 1. ✅ Start with 158 points
 2. ✅ Add $50 item to cart
 3. ✅ Use 30 points in checkout
@@ -197,6 +211,7 @@
 6. ✅ New balance: 158 - 30 + 20 = 148 points
 
 #### Edge Cases:
+
 1. ✅ Try to use more points than available (should show error)
 2. ✅ Try to use more points than order total (should auto-cap at max)
 3. ✅ Use "Max" button to apply maximum points
@@ -204,6 +219,7 @@
 ### 12. Tax Calculation Validation
 
 #### Test Magazine Tax:
+
 1. ✅ Add magazine priced at $100.00
 2. ✅ Go to cart
 3. ✅ Verify:
@@ -212,6 +228,7 @@
    - Total: $108.25
 
 #### Test Newspaper No Tax:
+
 1. ✅ Add newspaper priced at $15.99
 2. ✅ Go to cart
 3. ✅ Verify:
@@ -220,6 +237,7 @@
    - Total: $15.99
 
 #### Test Mixed Cart:
+
 1. ✅ Add 1 magazine ($100) + 1 newspaper ($15.99)
 2. ✅ Verify:
    - Subtotal: $115.99
@@ -305,6 +323,7 @@ SELECT id, rating, comment, status, "userId", "publicationId" FROM "Review";
 ## 🎯 Expected Outcomes
 
 ### All Features Working:
+
 - ✅ User authentication (login/logout)
 - ✅ Browse and filter publications (by type, category, city)
 - ✅ Add items to cart
@@ -335,6 +354,7 @@ SELECT id, rating, comment, status, "userId", "publicationId" FROM "Review";
 ## 🎉 Success Criteria
 
 The application is fully functional when:
+
 1. ✅ All pages load without errors
 2. ✅ Users can browse, filter, and purchase publications
 3. ✅ Tax is correctly calculated (8.25% on magazines only)

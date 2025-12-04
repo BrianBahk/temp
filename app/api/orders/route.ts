@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAuth } from '@/lib/auth';
-import { v4 as uuidv4 } from 'uuid';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/auth";
+import { v4 as uuidv4 } from "uuid";
 
 const TAX_RATE = 0.0825; // 8.25% tax for magazines
 
@@ -23,10 +23,7 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
     });
 
     if (cartItems.length === 0) {
-      return NextResponse.json(
-        { error: 'Cart is empty' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
     // Calculate subtotal and tax
@@ -38,7 +35,7 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
       subtotal += itemTotal;
 
       // Apply tax only to magazines
-      if (item.publication.type === 'magazine') {
+      if (item.publication.type === "magazine") {
         tax += itemTotal * TAX_RATE;
       }
     }
@@ -49,7 +46,7 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
     if (pointsToUse > 0) {
       if (pointsToUse > user.points) {
         return NextResponse.json(
-          { error: 'Insufficient points' },
+          { error: "Insufficient points" },
           { status: 400 }
         );
       }
@@ -57,7 +54,7 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
       // Can't use more points than the order total
       if (pointsToUse > totalBeforePoints) {
         return NextResponse.json(
-          { error: 'Points exceed order total' },
+          { error: "Points exceed order total" },
           { status: 400 }
         );
       }
@@ -66,7 +63,9 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
     const total = totalBeforePoints - pointsToUse;
 
     // Generate unique order number
-    const orderNumber = `ORD-${Date.now()}-${uuidv4().substring(0, 8).toUpperCase()}`;
+    const orderNumber = `ORD-${Date.now()}-${uuidv4()
+      .substring(0, 8)
+      .toUpperCase()}`;
 
     // Create order in a transaction
     const order = await prisma.$transaction(async (tx) => {
@@ -79,7 +78,7 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
           tax,
           pointsUsed: pointsToUse,
           total,
-          status: 'completed',
+          status: "completed",
           orderItems: {
             create: cartItems.map((item) => ({
               publicationId: item.publicationId,
@@ -135,9 +134,9 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
 
     return NextResponse.json(order, { status: 201 });
   } catch (error) {
-    console.error('Error creating order:', error);
+    console.error("Error creating order:", error);
     return NextResponse.json(
-      { error: 'Failed to create order' },
+      { error: "Failed to create order" },
       { status: 500 }
     );
   }
@@ -159,15 +158,15 @@ export const GET = requireAuth(async (request: NextRequest, user) => {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     return NextResponse.json(orders);
   } catch (error) {
-    console.error('Error fetching orders:', error);
+    console.error("Error fetching orders:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch orders' },
+      { error: "Failed to fetch orders" },
       { status: 500 }
     );
   }

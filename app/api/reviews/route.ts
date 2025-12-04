@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAuth } from '@/lib/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/auth";
 
 /**
  * GET /api/reviews?publicationId=xxx&status=approved
@@ -9,12 +9,12 @@ import { requireAuth } from '@/lib/auth';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const publicationId = searchParams.get('publicationId');
-    const status = searchParams.get('status') || 'approved';
+    const publicationId = searchParams.get("publicationId");
+    const status = searchParams.get("status") || "approved";
 
     if (!publicationId) {
       return NextResponse.json(
-        { error: 'Publication ID is required' },
+        { error: "Publication ID is required" },
         { status: 400 }
       );
     }
@@ -34,15 +34,15 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     return NextResponse.json(reviews);
   } catch (error) {
-    console.error('Error fetching reviews:', error);
+    console.error("Error fetching reviews:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch reviews' },
+      { error: "Failed to fetch reviews" },
       { status: 500 }
     );
   }
@@ -60,7 +60,7 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
     // Validate input
     if (!publicationId || !rating || rating < 1 || rating > 5) {
       return NextResponse.json(
-        { error: 'Invalid input. Rating must be between 1 and 5' },
+        { error: "Invalid input. Rating must be between 1 and 5" },
         { status: 400 }
       );
     }
@@ -71,7 +71,7 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
         publicationId,
         order: {
           userId: user.id,
-          status: 'completed',
+          status: "completed",
         },
       },
     });
@@ -80,13 +80,16 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
       where: {
         publicationId,
         userId: user.id,
-        status: 'active',
+        status: "active",
       },
     });
 
     if (!hasPurchased && !hasSubscription) {
       return NextResponse.json(
-        { error: 'You can only review items you have purchased or subscribed to' },
+        {
+          error:
+            "You can only review items you have purchased or subscribed to",
+        },
         { status: 403 }
       );
     }
@@ -101,7 +104,7 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
 
     if (existingReview) {
       return NextResponse.json(
-        { error: 'You have already reviewed this publication' },
+        { error: "You have already reviewed this publication" },
         { status: 400 }
       );
     }
@@ -112,8 +115,8 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
         userId: user.id,
         publicationId,
         rating,
-        comment: comment || '',
-        status: 'pending',
+        comment: comment || "",
+        status: "pending",
       },
       include: {
         user: {
@@ -128,9 +131,9 @@ export const POST = requireAuth(async (request: NextRequest, user) => {
 
     return NextResponse.json(review, { status: 201 });
   } catch (error) {
-    console.error('Error creating review:', error);
+    console.error("Error creating review:", error);
     return NextResponse.json(
-      { error: 'Failed to create review' },
+      { error: "Failed to create review" },
       { status: 500 }
     );
   }

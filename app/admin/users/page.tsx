@@ -7,14 +7,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Users, 
+import {
+  Users,
   ArrowLeft,
   Search,
   Mail,
   Calendar,
   Award,
-  ShieldCheck
+  ShieldCheck,
 } from "lucide-react";
 
 interface User {
@@ -49,7 +49,7 @@ export default function AdminUsers() {
       // });
       // const data = await response.json();
       // setUsers(data);
-      
+
       // Simulated data from seed
       setUsers([
         {
@@ -154,7 +154,9 @@ export default function AdminUsers() {
                       <div className="flex items-center gap-2 mb-2">
                         <h3 className="font-semibold text-lg">{user.name}</h3>
                         <Badge
-                          variant={user.role === "admin" ? "default" : "outline"}
+                          variant={
+                            user.role === "admin" ? "default" : "outline"
+                          }
                         >
                           {user.role === "admin" ? (
                             <div className="flex items-center gap-1">
@@ -207,7 +209,8 @@ export default function AdminUsers() {
                   {user.pointsEarned > 0 && (
                     <div className="mt-4 pt-4 border-t">
                       <p className="text-sm text-muted-foreground">
-                        Total points earned: {user.pointsEarned.toLocaleString()}
+                        Total points earned:{" "}
+                        {user.pointsEarned.toLocaleString()}
                       </p>
                     </div>
                   )}
@@ -239,7 +242,9 @@ export default function AdminUsers() {
               </div>
               <div>
                 <p className="text-2xl font-bold">
-                  {users.reduce((sum, u) => sum + u.pointsEarned, 0).toLocaleString()}
+                  {users
+                    .reduce((sum, u) => sum + u.pointsEarned, 0)
+                    .toLocaleString()}
                 </p>
                 <p className="text-sm text-muted-foreground">Points Earned</p>
               </div>

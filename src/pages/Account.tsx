@@ -55,16 +55,16 @@ const Account = () => {
     const end = new Date(endDate);
     const diffTime = end.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) return "Expired";
     if (diffDays === 0) return "Expires today";
     if (diffDays === 1) return "1 day left";
     if (diffDays < 30) return `${diffDays} days left`;
-    
+
     const months = Math.floor(diffDays / 30);
     if (months === 1) return "1 month left";
     if (months < 12) return `${months} months left`;
-    
+
     const years = Math.floor(months / 12);
     const remainingMonths = months % 12;
     if (years === 1 && remainingMonths === 0) return "1 year left";
@@ -87,7 +87,7 @@ const Account = () => {
       // });
       // const data = await response.json();
       // setOrders(data);
-      
+
       // Simulated data for now
       setOrders([]);
     } catch (error) {
@@ -224,7 +224,11 @@ const Account = () => {
                         <div
                           key={subscription.id}
                           className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer"
-                          onClick={() => router.push(`/publication/${subscription.publicationId}`)}
+                          onClick={() =>
+                            router.push(
+                              `/publication/${subscription.publicationId}`
+                            )
+                          }
                         >
                           <div className="flex items-center gap-4 flex-1">
                             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -250,7 +254,9 @@ const Account = () => {
                                 </div>
                                 <div className="flex items-center gap-1 text-primary font-medium">
                                   <Clock className="w-3 h-3" />
-                                  <span>{getTimeRemaining(subscription.endDate)}</span>
+                                  <span>
+                                    {getTimeRemaining(subscription.endDate)}
+                                  </span>
                                 </div>
                               </div>
                             </div>
@@ -261,7 +267,9 @@ const Account = () => {
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(`/publication/${subscription.publicationId}`);
+                                router.push(
+                                  `/publication/${subscription.publicationId}`
+                                );
                               }}
                             >
                               <MessageSquare className="w-4 h-4 mr-1" />
@@ -329,15 +337,20 @@ const Account = () => {
                               </p>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold">${order.total.toFixed(2)}</p>
+                              <p className="font-bold">
+                                ${order.total.toFixed(2)}
+                              </p>
                               {order.pointsUsed > 0 && (
-                                <Badge variant="outline" className="text-xs mt-1">
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs mt-1"
+                                >
                                   {order.pointsUsed} pts used
                                 </Badge>
                               )}
                             </div>
                           </div>
-                          
+
                           <div className="space-y-2">
                             {order.orderItems.map((item) => (
                               <div

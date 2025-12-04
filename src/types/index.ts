@@ -1,4 +1,4 @@
-export type PublicationType = 'magazine' | 'newspaper';
+export type PublicationType = "magazine" | "newspaper";
 
 export interface Publication {
   id: string;
@@ -36,7 +36,7 @@ export interface Subscription {
   type: PublicationType;
   startDate: string;
   endDate: string;
-  status: 'active' | 'cancelled' | 'expired';
+  status: "active" | "cancelled" | "expired";
   orderNumber: string;
 }
 
@@ -48,5 +48,5 @@ export interface Review {
   rating: number;
   comment: string;
   date: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
 }

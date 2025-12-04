@@ -1,18 +1,26 @@
 "use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Trash2, ShoppingBag, ArrowRight, Gift, Coins } from 'lucide-react';
-import { Layout } from '@/components/layout/Layout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useCart } from '@/contexts/CartContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+import { useState } from "react";
+import Link from "next/link";
+import { Trash2, ShoppingBag, ArrowRight, Gift, Coins } from "lucide-react";
+import { Layout } from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Cart = () => {
-  const { items, removeFromCart, clearCart, subtotal, tax, total, pointsEarned } = useCart();
+  const {
+    items,
+    removeFromCart,
+    clearCart,
+    subtotal,
+    tax,
+    total,
+    pointsEarned,
+  } = useCart();
   const { isAuthenticated, user, addPoints, addSubscription } = useAuth();
   const [pointsToUse, setPointsToUse] = useState(0);
 
@@ -22,17 +30,17 @@ const Cart = () => {
 
   const handleCheckout = () => {
     if (!isAuthenticated) {
-      toast.error('Please sign in to complete your purchase');
+      toast.error("Please sign in to complete your purchase");
       return;
     }
 
     if (pointsToUse > availablePoints) {
-      toast.error('Insufficient points');
+      toast.error("Insufficient points");
       return;
     }
 
     if (pointsToUse > total) {
-      toast.error('Points cannot exceed order total');
+      toast.error("Points cannot exceed order total");
       return;
     }
 
@@ -53,9 +61,11 @@ const Cart = () => {
         publicationId: item.publication.id,
         publicationTitle: item.publication.title,
         type: item.publication.type,
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        status: 'active' as const,
+        startDate: new Date().toISOString().split("T")[0],
+        endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
+        status: "active" as const,
         orderNumber: `ORD-${Date.now()}`,
       };
       addSubscription(subscription);
@@ -64,7 +74,7 @@ const Cart = () => {
     const pointsGained = Math.floor(finalTotal);
     addPoints(pointsGained - pointsToUse);
     clearCart();
-    
+
     let message = `Order placed!`;
     if (pointsToUse > 0) {
       message += ` ${pointsToUse} points redeemed.`;
@@ -124,11 +134,11 @@ const Cart = () => {
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => {
               const itemTax =
-                item.publication.type === 'magazine'
+                item.publication.type === "magazine"
                   ? item.publication.price * 0.0825
                   : 0;
               const itemTotal = item.publication.price + itemTax;
-              const pointsRate = item.publication.type === 'magazine' ? 10 : 20;
+              const pointsRate = item.publication.type === "magazine" ? 10 : 20;
 
               return (
                 <div
@@ -155,7 +165,7 @@ const Cart = () => {
                         size="icon"
                         onClick={() => {
                           removeFromCart(item.publication.id);
-                          toast.success('Item removed from cart');
+                          toast.success("Item removed from cart");
                         }}
                       >
                         <Trash2 className="w-4 h-4 text-muted-foreground" />
@@ -185,7 +195,9 @@ const Cart = () => {
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-card rounded-xl border border-border p-6 sticky top-24">
-              <h3 className="font-semibold text-foreground mb-4">Order Summary</h3>
+              <h3 className="font-semibold text-foreground mb-4">
+                Order Summary
+              </h3>
 
               <div className="space-y-3 text-sm mb-6">
                 <div className="flex justify-between">
@@ -258,7 +270,8 @@ const Cart = () => {
                 <div className="flex items-center gap-2 text-reward">
                   <Gift className="w-4 h-4" />
                   <span className="text-sm font-medium">
-                    You'll earn {Math.floor(finalTotal)} points from this purchase
+                    You'll earn {Math.floor(finalTotal)} points from this
+                    purchase
                   </span>
                 </div>
               </div>
@@ -275,8 +288,11 @@ const Cart = () => {
                     </Button>
                   </Link>
                   <p className="text-xs text-center text-muted-foreground">
-                    Don't have an account?{' '}
-                    <Link href="/signup" className="text-primary hover:underline">
+                    Don't have an account?{" "}
+                    <Link
+                      href="/signup"
+                      className="text-primary hover:underline"
+                    >
                       Sign up
                     </Link>
                   </p>
