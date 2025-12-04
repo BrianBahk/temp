@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: appdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Optional backend service: runs Maven inside a container and starts Spring Boot.
+  # This is useful if you want to run backend inside Docker and connect to the postgres service using service name `postgres`.
+  backend:
+    # Use a generic maven tag that is available on Docker Hub. If you prefer
+    # to run the backend as a built image, replace this with a Dockerfile build.
+    image: maven:3.9.4
+    working_dir: /workspace
+    volumes:
+      - ./backend:/workspace
+    command: mvn -DskipTests -f pom.xml spring-boot:run
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: appdb
+      DB_USER: postgres
+      DB_PASSWORD: password
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:

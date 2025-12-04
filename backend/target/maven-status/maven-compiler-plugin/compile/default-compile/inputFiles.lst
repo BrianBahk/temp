@@ -1,0 +1,6 @@
+/workspace/src/main/java/com/example/backend/BackendApplication.java
+/workspace/src/main/java/com/example/backend/DataLoader.java
+/workspace/src/main/java/com/example/backend/controller/PublicationsController.java
+/workspace/src/main/java/com/example/backend/repository/PublicationRepository.java
+/workspace/src/main/java/com/example/backend/config/WebConfig.java
+/workspace/src/main/java/com/example/backend/model/Publication.java
