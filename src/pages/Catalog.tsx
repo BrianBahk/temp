@@ -15,9 +15,10 @@ const Catalog = () => {
     initialType || 'all'
   );
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [sortBy, setSortBy] = useState<'title' | 'price' | 'rating' | 'issues' | 'city' | 'points'>('title');
 
-  const filteredPublications = useMemo(() => {
-    return publications.filter((pub) => {
+  const filteredAndSortedPublications = useMemo(() => {
+    let filtered = publications.filter((pub) => {
       const matchesSearch =
         pub.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         pub.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -26,7 +27,32 @@ const Catalog = () => {
         selectedCategory === 'All' || pub.category === selectedCategory;
       return matchesSearch && matchesType && matchesCategory;
     });
-  }, [searchQuery, selectedType, selectedCategory]);
+
+    // Sort
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'title':
+          return a.title.localeCompare(b.title);
+        case 'price':
+          return a.price - b.price;
+        case 'rating':
+          return b.rating - a.rating;
+        case 'issues':
+          return (b.issuesPerYear || 0) - (a.issuesPerYear || 0);
+        case 'city':
+          return (a.city || '').localeCompare(b.city || '');
+        case 'points': {
+          const pointsA = a.type === 'magazine' ? a.price * 0.1 : a.price * 0.2;
+          const pointsB = b.type === 'magazine' ? b.price * 0.1 : b.price * 0.2;
+          return pointsB - pointsA;
+        }
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [searchQuery, selectedType, selectedCategory, sortBy]);
 
   return (
     <Layout>
@@ -54,6 +80,8 @@ const Catalog = () => {
                 onTypeChange={setSelectedType}
                 selectedCategory={selectedCategory}
                 onCategoryChange={setSelectedCategory}
+                sortBy={sortBy}
+                onSortChange={setSortBy}
               />
             </div>
           </aside>
@@ -62,10 +90,18 @@ const Catalog = () => {
           <div className="lg:col-span-3">
             <div className="mb-6 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Showing {filteredPublications.length} publications
+                Showing {filteredAndSortedPublications.length} publications
               </p>
+              <span className="text-xs text-muted-foreground">
+                Sort: {sortBy === 'title' && 'Title (A-Z)'}
+                {sortBy === 'price' && 'Price (Low to High)'}
+                {sortBy === 'rating' && 'Rating (High to Low)'}
+                {sortBy === 'issues' && 'Issues Per Year (High)'}
+                {sortBy === 'city' && 'City (A-Z)'}
+                {sortBy === 'points' && 'Points Awarded (High)'}
+              </span>
             </div>
-            <PublicationGrid publications={filteredPublications} />
+            <PublicationGrid publications={filteredAndSortedPublications} />
           </div>
         </div>
       </div>

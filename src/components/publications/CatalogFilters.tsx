@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { Search, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { categories } from '@/data/publications';
@@ -11,6 +11,8 @@ interface CatalogFiltersProps {
   onTypeChange: (type: PublicationType | 'all') => void;
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
+  sortBy?: 'title' | 'price' | 'rating' | 'issues' | 'city' | 'points';
+  onSortChange?: (sort: 'title' | 'price' | 'rating' | 'issues' | 'city' | 'points') => void;
 }
 
 export function CatalogFilters({
@@ -20,7 +22,28 @@ export function CatalogFilters({
   onTypeChange,
   selectedCategory,
   onCategoryChange,
+  sortBy = 'title',
+  onSortChange,
 }: CatalogFiltersProps) {
+  const getSortOptions = () => {
+    if (selectedType === 'newspaper' || (selectedType === 'all')) {
+      return [
+        { value: 'title', label: 'Title (A-Z)' },
+        { value: 'price', label: 'Price (Low to High)' },
+        { value: 'rating', label: 'Rating (High to Low)' },
+        { value: 'points', label: 'Points Awarded (High)' },
+      ];
+    }
+    // Magazine specific sorts
+    return [
+      { value: 'title', label: 'Title (A-Z)' },
+      { value: 'price', label: 'Price (Low to High)' },
+      { value: 'issues', label: 'Issues Per Year (High)' },
+      { value: 'points', label: 'Points Awarded (High)' },
+      { value: 'rating', label: 'Rating (High to Low)' },
+    ];
+  };
+
   return (
     <div className="space-y-6">
       {/* Search */}
@@ -33,6 +56,24 @@ export function CatalogFilters({
           className="pl-10"
         />
       </div>
+
+      {/* Sort */}
+      {onSortChange && (
+        <div>
+          <h4 className="text-sm font-medium mb-3">Sort By</h4>
+          <select
+            value={sortBy}
+            onChange={(e) => onSortChange(e.target.value as any)}
+            className="w-full px-3 py-2 border border-input rounded-md bg-background text-sm"
+          >
+            {getSortOptions().map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Type Filter */}
       <div>

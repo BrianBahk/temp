@@ -8,8 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('demo');
+  const [password, setPassword] = useState('demo');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const success = await login(email, password);
+    const success = await login(username, password);
     
     if (success) {
       toast.success('Welcome back!');
@@ -66,13 +66,13 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                placeholder="your_username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -93,6 +93,12 @@ const Login = () => {
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
+
+          <div className="mt-6 p-4 bg-secondary/30 rounded-lg">
+            <p className="text-xs font-medium text-muted-foreground mb-2">Demo credentials:</p>
+            <p className="text-xs text-muted-foreground">User: <strong>demo</strong> / Password: <strong>demo</strong></p>
+            <p className="text-xs text-muted-foreground">Admin: <strong>admin</strong> / Password: <strong>admin</strong></p>
+          </div>
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
             Don't have an account?{' '}

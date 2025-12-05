@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { Publication, CartItem } from '@/types';
 
 interface CartContextType {
@@ -6,11 +6,16 @@ interface CartContextType {
   addToCart: (publication: Publication) => void;
   removeFromCart: (publicationId: string) => void;
   clearCart: () => void;
+  updatePaymentMethod: (publicationId: string, method: 'card' | 'points' | 'mixed', pointsUsed?: number) => void;
   itemCount: number;
   subtotal: number;
   tax: number;
   total: number;
   pointsEarned: number;
+  pointsNeeded: number;
+  cardTotal: number;
+  getTotalPointsUsed: () => number;
+  getTotalCardAmount: () => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -24,7 +29,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (existing) {
         return prev;
       }
-      return [...prev, { publication, quantity: 1 }];
+      return [...prev, { 
+        publication, 
+        quantity: 1,
+        paymentMethod: 'card',
+        pointsUsed: 0,
+      }];
     });
   }, []);
 
@@ -34,6 +44,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = useCallback(() => {
     setItems([]);
+  }, []);
+
+  const updatePaymentMethod = useCallback((publicationId: string, method: 'card' | 'points' | 'mixed', pointsUsed?: number) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.publication.id === publicationId
+          ? { ...item, paymentMethod: method, pointsUsed: pointsUsed || 0 }
+          : item
+      )
+    );
   }, []);
 
   const itemCount = items.length;
@@ -56,6 +76,31 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return acc + Math.floor(item.publication.price * rate * 100);
   }, 0);
 
+  // Calculate total points needed to pay with points only (100 points = $1)
+  const pointsNeeded = items.reduce((acc, item) => {
+    const itemTotal = item.publication.type === 'magazine'
+      ? item.publication.price * 1.0825
+      : item.publication.price;
+    return acc + Math.ceil(itemTotal * 100);
+  }, 0);
+
+  const getTotalPointsUsed = useCallback(() => {
+    return items.reduce((acc, item) => acc + (item.pointsUsed || 0), 0);
+  }, [items]);
+
+  const getTotalCardAmount = useCallback(() => {
+    return items.reduce((acc, item) => {
+      const itemWithTax = item.publication.type === 'magazine'
+        ? item.publication.price * 1.0825
+        : item.publication.price;
+      const pointsUsed = item.pointsUsed || 0;
+      const cardAmount = itemWithTax - (pointsUsed / 100);
+      return acc + Math.max(0, cardAmount);
+    }, 0);
+  }, [items]);
+
+  const cardTotal = useMemo(() => getTotalCardAmount(), [getTotalCardAmount]);
+
   return (
     <CartContext.Provider
       value={{
@@ -63,11 +108,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         addToCart,
         removeFromCart,
         clearCart,
+        updatePaymentMethod,
         itemCount,
         subtotal,
         tax,
         total,
         pointsEarned,
+        pointsNeeded,
+        cardTotal,
+        getTotalPointsUsed,
+        getTotalCardAmount,
       }}
     >
       {children}
