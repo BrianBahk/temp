@@ -1,0 +1,22 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: "jdbc:postgresql://${DB_HOST:host.docker.internal}:${DB_PORT:5432}/${DB_NAME:appdb}"
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:password}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+
+# Notes:
+# - Defaults assume Postgres is running in Docker and the backend runs on host (Windows).
+# - When running backend in Docker with Postgres in the same compose network, set DB_HOST to the postgres service name.
+# Example env to run locally (PowerShell):
+# $env:DB_HOST='host.docker.internal'; $env:DB_NAME='appdb'; $env:DB_USER='postgres'; $env:DB_PASSWORD='password'; mvn spring-boot:run

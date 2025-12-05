@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { PublicationGrid } from '@/components/publications/PublicationGrid';
 import { CatalogFilters } from '@/components/publications/CatalogFilters';
-import { publications } from '@/data/publications';
+import { publications as publicationsFallback } from '@/data/publications';
+import { fetchPublications, APIPublication } from '@/lib/api';
 import { PublicationType } from '@/types';
 
 const Catalog = () => {
@@ -11,6 +12,8 @@ const Catalog = () => {
   const initialType = searchParams.get('type') as PublicationType | null;
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [publications, setPublications] = useState(() => publicationsFallback);
+  const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState<PublicationType | 'all'>(
     initialType || 'all'
   );
@@ -53,6 +56,37 @@ const Catalog = () => {
 
     return sorted;
   }, [searchQuery, selectedType, selectedCategory, sortBy]);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    fetchPublications()
+      .then((data: APIPublication[]) => {
+        if (!mounted) return;
+        // Map API shape to frontend Publication shape where possible
+        const mapped = data.map((p) => ({
+          id: String(p.id),
+          title: p.title || 'Untitled',
+          description: p.author ? `Author: ${p.author}` : '',
+          image: '',
+          price: 0,
+          rating: 0,
+          reviewCount: 0,
+          featured: false,
+          type: 'magazine',
+          category: 'Imported',
+        }));
+        setPublications((prev) => (mapped.length > 0 ? mapped : prev));
+      })
+      .catch(() => {
+        // ignore and keep fallback
+      })
+      .finally(() => setLoading(false));
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <Layout>
